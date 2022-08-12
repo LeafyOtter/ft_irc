@@ -34,6 +34,8 @@ namespace c_irc
 		void accept_new_connections();
 		void read_from_client(pollfd &pfd, int index);
 
+		void close_all_connections();
+
 		Server();
 		Server(Server const& other);
 		Server& operator=(Server const& other);

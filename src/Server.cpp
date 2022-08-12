@@ -5,8 +5,19 @@
 #include <unistd.h>
 #include <cstring>
 #include <fcntl.h>
+#include <signal.h>
+
+#include <errno.h>
+
+#include <algorithm>
 
 #define STOI(x) (atoi(x.c_str()))
+
+void signal_handler(int signum)
+{
+	std::cout << "\nSignal " << signum << " received" << std::endl;
+	exit(1);
+}
 
 namespace c_irc
 {
@@ -16,13 +27,17 @@ namespace c_irc
 		: password(password)
 		, port(STOI(port))
 		, addr(STOI(address))
-		, fd(0)
-		, sa()
-		, fds()
+		// , fd(0)
+		// , sa()
+		// , fds()
 	{}
 
 	Server::~Server()
-	{}
+	{
+		close(fd);
+		close_all_connections();
+		fds.clear();
+	}
 
 	void	Server::initialize()
 	{
@@ -42,6 +57,9 @@ namespace c_irc
 		pfd.fd = fd;
 		pfd.events = POLLIN;
 		fds.push_back(pfd);
+
+		std::cout << "Server initialized" << std::endl;
+		std::cout << "Listening on port " << port << std::endl;
 	}
 
 	void	Server::run()
@@ -51,9 +69,15 @@ namespace c_irc
 
 		fds.reserve(42);
 
+		signal(SIGINT, &signal_handler);
 		while (0xCAFE)
 		{
 			rc = poll(&fds[0], fds.size(), -1);
+			if (rc == -1) {
+				if (errno == EINTR)
+					break ;
+				throw std::runtime_error("poll() failed");
+			}
 			if (fds[0].revents)	{// new user
 				accept_new_connections();
 				continue ;
@@ -105,7 +129,8 @@ namespace c_irc
 		int		rc;
 		char	buffer[1024];
 
-		memset(buffer, 0, sizeof(buffer));
+		// memset(buffer, 0, sizeof(buffer));
+		std::fill(buffer, buffer + sizeof(buffer), 0); // equivalent to memset (just in a c++ way)
 		rc = recv(pfd.fd, buffer, sizeof(buffer) - 1, 0);
 
 		if (!rc)
@@ -119,5 +144,11 @@ namespace c_irc
 		buffer[rc + 1] = '\0';
 		std::cout << "Client " << pfd.fd << ": " << buffer;
 		send(pfd.fd, buffer, rc, 0);
+	}
+	
+	void	Server::close_all_connections()
+	{
+		for (size_t i = 1; i < fds.size(); ++i)
+			close(fds[i].fd);
 	}
 } // namespace c_irc
