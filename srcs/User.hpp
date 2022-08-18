@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include "c_irc.hpp"
+
+#include <string>
 
 namespace c_irc
 {
