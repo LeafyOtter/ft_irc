@@ -1,6 +1,11 @@
 #pragma once
 
 #include <map>
+#include <queue>
+#include <vector>
+
+#include <poll.h>
+#include <stdint.h>
 
 // used in User.hpp
 #define U_MODE_REGISTERED		0x0001	// r : registered user
@@ -26,7 +31,3 @@
  * Can still talk in channel, if U_MODE_CHAN_OPERATOR is set
  * Can still join channel, if invited by chanop
  */
-
-class User;
-
-typedef std::map<User*, uint16_t>	users_t;
