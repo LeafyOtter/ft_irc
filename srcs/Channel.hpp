@@ -1,13 +1,14 @@
 #pragma once
 
 #include "c_irc.hpp"
+#include "User.hpp"
 
 #include <map>
 #include <string>
 
 namespace c_irc
 {
-	typedef users_t::iterator			users_t_it;
+	typedef std::map<c_irc::User*, uint16_t>	users_t;
 
 	class Channel
 	{
