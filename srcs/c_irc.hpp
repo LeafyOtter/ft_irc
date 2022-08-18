@@ -2,6 +2,7 @@
 
 #include <map>
 #include <queue>
+#include <set>
 #include <vector>
 
 #include <poll.h>
@@ -31,3 +32,25 @@
  * Can still talk in channel, if U_MODE_CHAN_OPERATOR is set
  * Can still join channel, if invited by chanop
  */
+
+#include "User.hpp"
+
+namespace c_irc
+{
+	class Message;
+
+	struct u_compare {
+		bool operator()(const c_irc::User *lhs, const c_irc::User *rhs) const
+		{
+			return (lhs->get_nick() < rhs->get_nick());
+		}
+	};
+
+	typedef typename std::queue<c_irc::Message *>						messages_t;
+	typedef typename std::vector<pollfd>								pollfds_t;
+	typedef typename std::map<c_irc::User*, uint16_t, c_irc::u_compare>	users_map_t;
+	typedef typename std::set<c_irc::User*, c_irc::u_compare>			users_set_t;
+
+	typedef typename users_map_t::iterator								users_map_it_t;
+	typedef typename users_set_t::iterator								users_set_it_t;
+} // namespace c_irc
