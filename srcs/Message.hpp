@@ -1,26 +1,30 @@
 #pragma once
 
 #include "c_irc.hpp"
+#include "Channel.hpp"
 
 #include <string>
 
 namespace c_irc
 {
-	template <typename iterator>
 	class Message
 	{
+		public :
+
+		typedef typename c_irc::users_t::iterator	users_it;
+
 		private:
 
 		std::string		message;
-		iterator		first;
-		iterator		last;
+		users_it		first;
+		users_it		last;
 		bool			to_pop;
 
 		Message();
 
 		public:
 
-		Message(iterator first, iterator last);
+		Message(users_it first, users_it last);
 		~Message();
 
 		std::string		get_message() const;
