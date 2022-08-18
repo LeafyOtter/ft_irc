@@ -1,11 +1,12 @@
 #pragma once
 
-#include "c_irc.hpp"
-
 #include <string>
+
+#include <poll.h>
 
 namespace c_irc
 {
+
 	class User
 	{
 		private:
@@ -38,5 +39,11 @@ namespace c_irc
 		void			set_host(std::string new_host);
 		void			set_realname(std::string new_realname);
 		void			set_mode(uint16_t new_mode);
+
+		void			set_flag_mode(uint16_t flag);
+		void			unset_flag_mode(uint16_t flag);
+
+		void			set_pollout();
+		void			unset_pollout();
 	};
 } // namespace c_irc
