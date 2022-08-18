@@ -8,8 +8,6 @@
 
 namespace c_irc
 {
-	typedef std::map<c_irc::User*, uint16_t>	users_t;
-
 	class Channel
 	{
 		private:
@@ -25,7 +23,7 @@ namespace c_irc
 		uint16_t		mode;
 		uint16_t		limit;
 
-		users_t			users;
+		users_map_t		users;
 
 		Channel();
 
