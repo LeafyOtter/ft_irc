@@ -2,10 +2,13 @@
 #include "Message.hpp"
 
 #include <arpa/inet.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -36,7 +39,7 @@ namespace c_irc
 
 		name = new_name;
 		ip = inet_addr(new_ip.c_str());
-		port = htons(std::stoi(new_port));	// replace stoi
+		port = htons(std::stoi(new_port));	// replace stoi (not std=c++98 compliant)
 
 		/*
 		 *	Socket creation
@@ -58,7 +61,7 @@ namespace c_irc
 
 		server_addr.sin_family = AF_INET;
 		server_addr.sin_port = port;
-		server_addr.sin_addr.s_addr = ip;	
+		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		
 		rc = bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if (rc < 0) {
@@ -87,19 +90,143 @@ namespace c_irc
 		pollfds.push_back(pfd);
 
 		LOG("listen() success");
+		LOG("Address : " << inet_ntoa(server_addr.sin_addr));
 		LOG("Listening on port: " << ntohs(server_addr.sin_port));
 	}
 
 	void	Server::start()
 	{
+		int rc;
+
 		// Change signal behavior
 		signal(SIGINT, &signal_handler);
 		signal(SIGTERM, &signal_handler);
 		signal(SIGQUIT, &signal_handler);
 
+		pollfds.reserve(42);
+
 		while (0xCAFE) {
+
 			if (not buffer.empty()) {
-				buffer.front()->prepare_message();
+				if (not buffer.front()->nb_users()) {
+					delete buffer.front();
+					buffer.pop();
+				}
+				else
+					buffer.front()->prepare();
+			}
+
+			rc = poll(&pollfds[0], pollfds.size(), -1);
+
+			if (rc == -1) {
+				if (errno == EINTR)
+					break ;
+				close(fd);
+				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
+			}
+
+			if (pollfds[0].revents == POLLIN) { // new connection to server waiting
+				accept_connections();
+				// continue ;
+			}
+
+			if (rc) {
+				check_all_clients(rc);
+			}
+
+			if (not buffer.empty() and buffer.front()->get_status()) {
+				delete buffer.front();
+				buffer.pop();
+			}
+		}
+
+		close(fd);
+		for (users_set_it_t it = users.begin(); it != users.end(); ++it) {
+			close((*it)->get_pfd()->fd);
+			delete (*it);
+		}
+		users.clear();
+		while (not buffer.empty()) {
+			delete buffer.front();
+			buffer.pop();
+		}
+	}
+
+	void	Server::accept_connections()
+	{
+		struct sockaddr_in user_addr;
+		socklen_t user_addr_len = sizeof(user_addr);
+		int user_fd;
+		user_fd = accept(fd, (struct sockaddr *)&user_addr, &user_addr_len);
+		if (user_fd == -1) {
+			close(fd);
+			throw std::runtime_error("accept() failed to open");
+		}
+		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) << ":" << ntohs(user_addr.sin_port));
+		pollfd pfd;
+		pfd.fd = user_fd;
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		pollfds.push_back(pfd);
+
+		c_irc::User *new_user = new c_irc::User(&pollfds.back()); // TODO : refactor
+		new_user->set_nick(std::to_string(pfd.fd));
+		users.insert(new_user);
+	}
+
+	users_set_it_t	Server::find_user(int fd)
+	{
+		users_set_it_t it = users.begin();
+		while (it != users.end()) {
+			if ((*it)->get_pfd()->fd == fd)
+				return it;
+			++it;
+		}
+		return users.end();
+	}
+
+	void	Server::check_all_clients(int n)
+	{
+		char	buf[1024];
+		size_t	size = pollfds.size();
+
+		for (size_t i = 1; i < size; i++) {
+			if (!n)
+				break ;
+			if (pollfds[i].revents)
+				n--;
+			if (pollfds[i].revents & POLLIN) {
+				std::fill(buf, buf + sizeof(buf), 0);
+				int rc = recv(pollfds[i].fd, buf, sizeof(buf), 0);
+				if (!rc) {
+					LOG("Client " << pollfds[i].fd << " disconnected");
+
+					close(pollfds[i].fd);
+					users_set_it_t it = find_user(pollfds[i].fd);
+					delete *it;
+					users.erase(it);
+
+					memset(&pollfds[i], 0, sizeof(pollfds[i]));
+					continue ;
+				}
+
+				// parse message
+				std::string str = "Client " + std::to_string(pollfds[i].fd) + ": " + std::string(buf);
+				std::cout << str;
+
+				// create new Message
+				c_irc::Message *msg = new c_irc::Message(users.begin(), users.end());
+				msg->set_message(str);
+				msg->set_sender(find_user(pollfds[i].fd));
+
+				buffer.push(msg);
+			}
+			if (pollfds[i].revents & POLLOUT) {
+				
+				std::string str = buffer.front()->get_message();
+				send(pollfds[i].fd, str.c_str(), str.length(), 0);
+				pollfds[i].events &= ~POLLOUT;
+				buffer.front()->set_status();
 			}
 		}
 	}

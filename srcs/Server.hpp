@@ -2,13 +2,9 @@
 
 #include "c_irc.hpp"
 #include "Message.hpp"
-#include "User.hpp"
 #include "Channel.hpp"
 
 #include <string>
-
-typedef std::queue<c_irc::Message *>	messages_t;
-typedef std::vector<pollfd>				pollfds_t;
 
 namespace c_irc
 {
@@ -23,7 +19,7 @@ namespace c_irc
 		uint16_t		ip;
 		uint16_t		port;
 
-		users_t			users;
+		users_set_t		users;
 		pollfds_t		pollfds;
 
 		messages_t		buffer;
@@ -40,6 +36,9 @@ namespace c_irc
 							std::string port);
 
 		void	start();
+		void	accept_connections();
+		void	check_all_clients(int rc);
 
+		users_set_it_t	find_user(int fd);
 	};
 } // namespace c_irc
