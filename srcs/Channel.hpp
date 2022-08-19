@@ -23,7 +23,7 @@ namespace c_irc
 		uint16_t		mode;
 		uint16_t		limit;
 
-		users_map_t		users;
+		users_t			users;
 
 		Channel();
 
