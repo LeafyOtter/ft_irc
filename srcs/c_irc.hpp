@@ -5,6 +5,9 @@
 #include <set>
 #include <vector>
 
+#include <sstream>
+#include <string>
+
 #include <poll.h>
 #include <stdint.h>
 
@@ -46,11 +49,9 @@ namespace c_irc
 		}
 	};
 
-	typedef typename std::queue<c_irc::Message *>						messages_t;
-	typedef typename std::vector<pollfd>								pollfds_t;
-	typedef typename std::map<c_irc::User*, uint16_t, c_irc::u_compare>	users_map_t;
-	typedef typename std::set<c_irc::User*, c_irc::u_compare>			users_set_t;
+	typedef std::queue<c_irc::Message *>						messages_t;
+	typedef std::vector<pollfd>									pollfds_t;
+	typedef std::map<c_irc::User*, uint16_t, c_irc::u_compare>	users_t;
 
-	typedef typename users_map_t::iterator								users_map_it_t;
-	typedef typename users_set_t::iterator								users_set_it_t;
+	typedef users_t::iterator									users_it_t;
 } // namespace c_irc
