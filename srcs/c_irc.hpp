@@ -41,6 +41,7 @@
 namespace c_irc
 {
 	class Message;
+	class Channel;
 
 	struct u_compare {
 		bool operator()(const c_irc::User *lhs, const c_irc::User *rhs) const
@@ -52,6 +53,8 @@ namespace c_irc
 	typedef std::queue<c_irc::Message *>						messages_t;
 	typedef std::vector<pollfd>									pollfds_t;
 	typedef std::map<c_irc::User*, uint16_t, c_irc::u_compare>	users_t;
+	typedef std::map<std::string, c_irc::Channel *>				channels_t;
 
 	typedef users_t::iterator									users_it_t;
+	typedef channels_t::iterator								channels_it_t;
 } // namespace c_irc
