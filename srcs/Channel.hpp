@@ -26,10 +26,12 @@ namespace c_irc
 		users_t			users;
 
 		Channel();
+		Channel(const Channel &other);
+		Channel &operator=(const Channel &other);
 
 		public:
 
-		Channel(std::string	new_name);
+		Channel(std::string	new_name, c_irc::User *user);
 		~Channel();
 
 		std::string		get_name() const;
