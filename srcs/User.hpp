@@ -3,6 +3,7 @@
 #include <string>
 
 #include <poll.h>
+#include <stdint.h>
 
 namespace c_irc
 {
