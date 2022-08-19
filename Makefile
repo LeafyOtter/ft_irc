@@ -2,14 +2,17 @@ NAME = ircserv
 
 C++ = c++
 
-FLAG = -Wall -Werror -Wextra -std=c++98 -g
+FSAN = -fsanitize=address -fsanitize=leak -fsanitize=undefined
+
+FLAG = -Wall -Werror -Wextra -std=c++98 -g $(FSAN)
 INCS = -I./srcs -MMD -MP
 
 SRCS_LIST = \
 	main.cpp \
 	Server.cpp \
 	User.cpp \
-	Message.cpp
+	Message.cpp \
+	Channel.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
