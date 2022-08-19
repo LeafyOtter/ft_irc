@@ -140,6 +140,7 @@ namespace c_irc
 				delete buffer.front();
 				buffer.pop();
 			}
+			LOG("users : " << users.size());
 		}
 
 		close(fd);
@@ -171,7 +172,9 @@ namespace c_irc
 		pfd.revents = 0;
 		pollfds.push_back(pfd);
 
+		LOG("New user added");
 		c_irc::User *new_user = new c_irc::User(&pollfds.back()); // TODO : refactor
+		new_user->set_nick(c_irc::to_string(pollfds.back().fd - 3));
 		users.insert(std::make_pair(new_user, int()));
 	}
 
@@ -203,6 +206,9 @@ namespace c_irc
 					LOG("Client " << pollfds[i].fd << " disconnected");
 
 					close(pollfds[i].fd);
+					LOG("Content of pollfd : " << pollfds[i].fd << " " << pollfds[i].events << " " << pollfds[i].revents);
+					LOG("Size of users : " << users.size());
+
 					users_it_t it = find_user(pollfds[i].fd);
 					delete (*it).first;
 					users.erase(it);
@@ -212,7 +218,9 @@ namespace c_irc
 				}
 
 				// parse message
-				std::string str = "Client " + c_irc::to_string(pollfds[i].fd) + ": " + std::string(buf);
+				// if (std::string(buf) == "Create Channel\n")
+					// create_channel("#test", find_user(pollfds[i].fd)->first);
+				std::string str = "Client " + c_irc::to_string(pollfds[i].fd - 3) + ": " + std::string(buf);
 				std::cout << str;
 
 				// create new Message
@@ -223,7 +231,7 @@ namespace c_irc
 				buffer.push(msg);
 			}
 			if (pollfds[i].revents & POLLOUT) {
-				
+				// send_message(buffer.front(), pollfds[i]);
 				std::string str = buffer.front()->get_message();
 				send(pollfds[i].fd, str.c_str(), str.length(), 0);
 				pollfds[i].events &= ~POLLOUT;
@@ -231,4 +239,32 @@ namespace c_irc
 			}
 		}
 	}
+
+	void	Server::send_message(c_irc::Message *msg, pollfd &pfd)
+	{
+		std::string str = msg->get_message();
+		send(pfd.fd, str.c_str(), str.length(), 0);
+		pfd.fd &= ~POLLOUT;
+		msg->set_status();
+	}
+
+	void	Server::create_channel(std::string name, c_irc::User *user)
+	{
+		c_irc::Channel *ptr = new c_irc::Channel(name, user);
+		channels.insert(std::make_pair(name, ptr));
+
+		LOG("Channel " + name + " created");
+	}
+
+	void	Server::delete_channel(std::string name)
+	{
+		channels_it_t it = channels.find(name);
+		if (it != channels.end()) {
+			delete (*it).second;
+			channels.erase(it);
+		}
+
+		LOG("Channel " + name + " deleted");
+	}
+
 } // namespace c_irc

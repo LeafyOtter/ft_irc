@@ -22,6 +22,7 @@ namespace c_irc
 		users_t			users;
 		pollfds_t		pollfds;
 
+		channels_t		channels;
 		messages_t		buffer;
 
 		// Logger		*log;
@@ -40,5 +41,9 @@ namespace c_irc
 		void	check_all_clients(int rc);
 
 		users_it_t	find_user(int fd);
+
+		void	send_message(c_irc::Message *msg, pollfd &pfd);
+		void	create_channel(std::string name, User *user);
+		void	delete_channel(std::string name);
 	};
 } // namespace c_irc
