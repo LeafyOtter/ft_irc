@@ -1,6 +1,8 @@
 #include "Server.hpp"
 #include "Message.hpp"
 
+#include "utils.tpp"
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -39,7 +41,7 @@ namespace c_irc
 
 		name = new_name;
 		ip = inet_addr(new_ip.c_str());
-		port = htons(std::stoi(new_port));	// replace stoi (not std=c++98 compliant)
+		port = htons(c_irc::stoi(new_port));	// replace stoi (not std=c++98 compliant)
 
 		/*
 		 *	Socket creation
@@ -141,9 +143,9 @@ namespace c_irc
 		}
 
 		close(fd);
-		for (users_set_it_t it = users.begin(); it != users.end(); ++it) {
-			close((*it)->get_pfd()->fd);
-			delete (*it);
+		for (users_it_t it = users.begin(); it != users.end(); ++it) {
+			close((*it).first->get_pfd()->fd);
+			delete (*it).first;
 		}
 		users.clear();
 		while (not buffer.empty()) {
@@ -170,15 +172,14 @@ namespace c_irc
 		pollfds.push_back(pfd);
 
 		c_irc::User *new_user = new c_irc::User(&pollfds.back()); // TODO : refactor
-		new_user->set_nick(std::to_string(pfd.fd));
-		users.insert(new_user);
+		users.insert(std::make_pair(new_user, int()));
 	}
 
-	users_set_it_t	Server::find_user(int fd)
+	users_it_t	Server::find_user(int fd)
 	{
-		users_set_it_t it = users.begin();
+		users_it_t it = users.begin();
 		while (it != users.end()) {
-			if ((*it)->get_pfd()->fd == fd)
+			if ((*it).first->get_pfd()->fd == fd)
 				return it;
 			++it;
 		}
@@ -202,8 +203,8 @@ namespace c_irc
 					LOG("Client " << pollfds[i].fd << " disconnected");
 
 					close(pollfds[i].fd);
-					users_set_it_t it = find_user(pollfds[i].fd);
-					delete *it;
+					users_it_t it = find_user(pollfds[i].fd);
+					delete (*it).first;
 					users.erase(it);
 
 					memset(&pollfds[i], 0, sizeof(pollfds[i]));
@@ -211,7 +212,7 @@ namespace c_irc
 				}
 
 				// parse message
-				std::string str = "Client " + std::to_string(pollfds[i].fd) + ": " + std::string(buf);
+				std::string str = "Client " + c_irc::to_string(pollfds[i].fd) + ": " + std::string(buf);
 				std::cout << str;
 
 				// create new Message

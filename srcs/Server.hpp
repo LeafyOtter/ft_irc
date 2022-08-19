@@ -19,7 +19,7 @@ namespace c_irc
 		uint16_t		ip;
 		uint16_t		port;
 
-		users_set_t		users;
+		users_t			users;
 		pollfds_t		pollfds;
 
 		messages_t		buffer;
@@ -39,6 +39,6 @@ namespace c_irc
 		void	accept_connections();
 		void	check_all_clients(int rc);
 
-		users_set_it_t	find_user(int fd);
+		users_it_t	find_user(int fd);
 	};
 } // namespace c_irc
