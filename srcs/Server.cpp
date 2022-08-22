@@ -102,8 +102,8 @@ namespace c_irc
 
 		// Change signal behavior
 		signal(SIGINT, &signal_handler);
-		signal(SIGTERM, &signal_handler);
-		signal(SIGQUIT, &signal_handler);
+		// signal(SIGTERM, &signal_handler);
+		// signal(SIGQUIT, &signal_handler);
 
 		pollfds.reserve(42);
 
@@ -140,7 +140,7 @@ namespace c_irc
 				delete buffer.front();
 				buffer.pop();
 			}
-			LOG("users : " << users.size());
+			// LOG("users : " << users.size());
 		}
 
 		close(fd);
@@ -153,6 +153,8 @@ namespace c_irc
 			delete buffer.front();
 			buffer.pop();
 		}
+
+		delete_channel("#test");
 	}
 
 	void	Server::accept_connections()
@@ -165,7 +167,8 @@ namespace c_irc
 			close(fd);
 			throw std::runtime_error("accept() failed to open");
 		}
-		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) << ":" << ntohs(user_addr.sin_port));
+		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) \
+			<< ":" << ntohs(user_addr.sin_port));
 		pollfd pfd;
 		pfd.fd = user_fd;
 		pfd.events = POLLIN;
@@ -203,7 +206,7 @@ namespace c_irc
 				std::fill(buf, buf + sizeof(buf), 0);
 				int rc = recv(pollfds[i].fd, buf, sizeof(buf), 0);
 				if (!rc) {
-					LOG("Client " << pollfds[i].fd << " disconnected");
+					LOG("Client " << pollfds[i].fd - 3 << " disconnected");
 
 					close(pollfds[i].fd);
 					LOG("Content of pollfd : " << pollfds[i].fd << " " << pollfds[i].events << " " << pollfds[i].revents);
@@ -217,19 +220,49 @@ namespace c_irc
 					continue ;
 				}
 
-				// parse message
-				// if (std::string(buf) == "Create Channel\n")
-					// create_channel("#test", find_user(pollfds[i].fd)->first);
+				// TODO: refactor
+
+				c_irc::User *user = (*find_user(pollfds[i].fd)).first;
+
 				std::string str = "Client " + c_irc::to_string(pollfds[i].fd - 3) + ": " + std::string(buf);
 				std::cout << str;
 
+				// parse message
+				if (std::string(buf) == "Create Channel\n") {
+					create_channel("#test", user);
+					return ;
+				}
+
+				if (std::string(buf) == "Join Channel\n") {
+					channels["#test"]->add_user(user);
+					return ;
+				}
+
+
+
+				c_irc::Message *msg;
+
 				// create new Message
-				c_irc::Message *msg = new c_irc::Message(users.begin(), users.end());
-				msg->set_message(str);
+
+				if (!channels.empty() && \
+					channels["#test"]->is_user_in_channel(user->get_nick()))
+				{
+					msg = new c_irc::Message(channels["#test"]->begin(), channels["#test"]->end());
+					str = "Sent from channel #test : " + str;
+					msg->set_message(str);
+				}
+				else
+				{
+					msg = new c_irc::Message(users.begin(), users.end());
+					msg->set_message(str);
+				}
+
 				msg->set_sender(find_user(pollfds[i].fd));
 
 				buffer.push(msg);
 			}
+
+
 			if (pollfds[i].revents & POLLOUT) {
 				// send_message(buffer.front(), pollfds[i]);
 				std::string str = buffer.front()->get_message();
@@ -262,9 +295,8 @@ namespace c_irc
 		if (it != channels.end()) {
 			delete (*it).second;
 			channels.erase(it);
+			LOG("Channel " + name + " deleted");
 		}
-
-		LOG("Channel " + name + " deleted");
 	}
 
 } // namespace c_irc
