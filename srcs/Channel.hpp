@@ -45,12 +45,20 @@ namespace c_irc
 		void			set_mode(uint16_t new_mode);
 		void			set_limit(uint16_t new_limit);
 
+		void			set_user_mode(c_irc::User *user, uint16_t new_mode);
+		void			unset_user_mode(c_irc::User *user, uint16_t new_mode);
+
 		void			add_user(c_irc::User* new_user);
 		void			remove_user(c_irc::User* new_user);
 
 		void			ban_user(std::string new_user);
 		void			unban_user(std::string new_user);
 
-		bool			is_name_valid(std::string new_name) const;
+		bool			is_name_valid(std::string new_name);
+		bool			is_user_banned(std::string new_user);
+		bool			is_user_in_channel(std::string new_user);
+
+		users_it_t		begin();
+		users_it_t		end();
 	};
 } // namespace c_irc
