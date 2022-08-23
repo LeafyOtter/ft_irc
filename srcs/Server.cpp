@@ -31,7 +31,22 @@ namespace c_irc
 	{}
 
 	Server::~Server()
-	{}
+	{
+		for (size_t i = 0; i < users.size(); i++) {
+			close(users[i]->get_fd());
+			delete users[i];
+		}
+		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
+			delete it->second;
+		pollfds.clear();
+		users.clear();
+		channels.clear();
+		while (not buffer.empty()) {
+			delete buffer.front();
+			buffer.pop();
+		}
+		close(fd);
+	}
 
 	void	Server::initialize(	std::string new_name,
 								std::string new_ip,
@@ -104,11 +119,8 @@ namespace c_irc
 		signal(SIGINT, &signal_handler);
 		// signal(SIGTERM, &signal_handler);
 		// signal(SIGQUIT, &signal_handler);
-
 		pollfds.reserve(42);
-
 		while (0xCAFE) {
-
 			if (not buffer.empty()) {
 				if (not buffer.front()->nb_users()) {
 					delete buffer.front();
@@ -117,44 +129,22 @@ namespace c_irc
 				else
 					buffer.front()->prepare();
 			}
-
 			rc = poll(&pollfds[0], pollfds.size(), -1);
-
 			if (rc == -1) {
 				if (errno == EINTR)
 					break ;
 				close(fd);
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
 			}
-
-			if (pollfds[0].revents == POLLIN) { // new connection to server waiting
+			if (pollfds[0].revents == POLLIN) // new connection to server waiting
 				accept_connections();
-				// continue ;
-			}
-
-			if (rc) {
+			if (rc)
 				check_all_clients(rc);
-			}
-
 			if (not buffer.empty() and buffer.front()->get_status()) {
 				delete buffer.front();
 				buffer.pop();
 			}
-			// LOG("users : " << users.size());
 		}
-
-		close(fd);
-		for (users_it_t it = users.begin(); it != users.end(); ++it) {
-			close((*it).first->get_pfd()->fd);
-			delete (*it).first;
-		}
-		users.clear();
-		while (not buffer.empty()) {
-			delete buffer.front();
-			buffer.pop();
-		}
-
-		delete_channel("#test");
 	}
 
 	void	Server::accept_connections()
@@ -176,20 +166,9 @@ namespace c_irc
 		pollfds.push_back(pfd);
 
 		LOG("New user added");
-		c_irc::User *new_user = new c_irc::User(&pollfds.back()); // TODO : refactor
+		c_irc::User *new_user = new c_irc::User(pfd.fd, pollfds); // TODO : refactor
 		new_user->set_nick(c_irc::to_string(pollfds.back().fd - 3));
-		users.insert(std::make_pair(new_user, int()));
-	}
-
-	users_it_t	Server::find_user(int fd)
-	{
-		users_it_t it = users.begin();
-		while (it != users.end()) {
-			if ((*it).first->get_pfd()->fd == fd)
-				return it;
-			++it;
-		}
-		return users.end();
+		users.insert(std::make_pair(pfd.fd, new_user));
 	}
 
 	void	Server::check_all_clients(int n)
@@ -206,39 +185,31 @@ namespace c_irc
 				std::fill(buf, buf + sizeof(buf), 0);
 				int rc = recv(pollfds[i].fd, buf, sizeof(buf), 0);
 				if (!rc) {
-					LOG("Client " << pollfds[i].fd - 3 << " disconnected");
-
-					close(pollfds[i].fd);
-					LOG("Content of pollfd : " << pollfds[i].fd << " " << pollfds[i].events << " " << pollfds[i].revents);
-					LOG("Size of users : " << users.size());
-
-					users_it_t it = find_user(pollfds[i].fd);
-					delete (*it).first;
-					users.erase(it);
-
-					memset(&pollfds[i], 0, sizeof(pollfds[i]));
+					delete_user(i, pollfds[i].fd);
 					continue ;
 				}
+				// parse_message(buf, pollfds[i].fd);
+				// TODO: Delete 192 to 228
 
-				// TODO: refactor
-
-				c_irc::User *user = (*find_user(pollfds[i].fd)).first;
+				c_irc::User *user = users.find(pollfds[i].fd)->second;
 
 				std::string str = "Client " + c_irc::to_string(pollfds[i].fd - 3) + ": " + std::string(buf);
 				std::cout << str;
 
 				// parse message
 				if (std::string(buf) == "Create Channel\n") {
-					create_channel("#test", user);
+					create_channel("#test", pollfds[i].fd);
 					return ;
 				}
 
 				if (std::string(buf) == "Join Channel\n") {
-					channels["#test"]->add_user(user);
+					if (channels.find("#test") != channels.end()) {
+						channels["#test"]->add_user(pollfds[i].fd);
+					}
+					else
+						LOG("Channel #test not found");
 					return ;
 				}
-
-
 
 				c_irc::Message *msg;
 
@@ -247,29 +218,17 @@ namespace c_irc
 				if (!channels.empty() && \
 					channels["#test"]->is_user_in_channel(user->get_nick()))
 				{
-					msg = new c_irc::Message(channels["#test"]->begin(), channels["#test"]->end());
+					msg = new c_irc::Message(users, channels["#test"]->begin(), channels["#test"]->end());
 					str = "Sent from channel #test : " + str;
 					msg->set_message(str);
+					msg->set_sender(channels["#test"]->get_user(pollfds[i].fd));
+					buffer.push(msg);
 				}
 				else
-				{
-					msg = new c_irc::Message(users.begin(), users.end());
-					msg->set_message(str);
-				}
-
-				msg->set_sender(find_user(pollfds[i].fd));
-
-				buffer.push(msg);
+					LOG("User " << user->get_nick() << " not in channel #test");
 			}
-
-
-			if (pollfds[i].revents & POLLOUT) {
-				// send_message(buffer.front(), pollfds[i]);
-				std::string str = buffer.front()->get_message();
-				send(pollfds[i].fd, str.c_str(), str.length(), 0);
-				pollfds[i].events &= ~POLLOUT;
-				buffer.front()->set_status();
-			}
+			if (pollfds[i].revents & POLLOUT)
+				send_message(buffer.front(), pollfds[i]);
 		}
 	}
 
@@ -277,15 +236,14 @@ namespace c_irc
 	{
 		std::string str = msg->get_message();
 		send(pfd.fd, str.c_str(), str.length(), 0);
-		pfd.fd &= ~POLLOUT;
+		pfd.events &= ~POLLOUT;
 		msg->set_status();
 	}
 
-	void	Server::create_channel(std::string name, c_irc::User *user)
+	void	Server::create_channel(std::string name, int user)
 	{
-		c_irc::Channel *ptr = new c_irc::Channel(name, user);
+		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
-
 		LOG("Channel " + name + " created");
 	}
 
@@ -297,6 +255,20 @@ namespace c_irc
 			channels.erase(it);
 			LOG("Channel " + name + " deleted");
 		}
+		else
+			LOG("Channel " + name + " not found");
+	}
+
+	void	Server::delete_user(int index, int fd)
+	{
+		LOG("Client " << fd << " disconnected");
+		close(fd);
+		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
+			(*it).second->remove_user(fd);
+		serv_users_it_t it = users.find(fd);
+		delete (*it).second;
+		users.erase(it);
+		pollfds.erase(pollfds.begin() + index);
 	}
 
 } // namespace c_irc

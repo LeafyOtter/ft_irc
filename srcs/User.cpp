@@ -1,14 +1,22 @@
 #include "User.hpp"
+#include <vector>
 
 namespace c_irc
 {
-	User::User(pollfd *new_pfd)
+	typedef std::vector<pollfd>		pollfds_t;
+
+	User::User(int new_fd, pollfds_t &new_pfds)
 		: nick("")
 		, user("")
 		, host("")
 		, realname("")
 		, mode(0)
-		, pfd(new_pfd) {}
+		, fd(new_fd)
+		, pfds(new_pfds)
+		, pfds_index(0)
+	{
+		get_pollfd();	// initialize pfds_index
+	}
 
 	User::~User() {}
 
@@ -17,7 +25,7 @@ namespace c_irc
 	std::string User::get_host() const { return (host); }
 	std::string User::get_realname() const { return (realname); }
 	uint16_t User::get_mode() const { return (mode); }
-	pollfd *User::get_pfd() const { return (pfd); }
+	int User::get_fd() const { return (fd); }
 
 	void User::set_nick(std::string new_nick) { nick = new_nick; }
 	void User::set_user(std::string new_user) { user = new_user; }
@@ -28,9 +36,29 @@ namespace c_irc
 	void User::set_flag_mode(uint16_t flag) { mode |= flag; }
 	void User::unset_flag_mode(uint16_t flag) { mode &= ~flag; }
 
-	void User::set_pollout() { pfd->events |= POLLOUT; }
-	void User::unset_pollout() { pfd->events &= ~POLLOUT; }
+	void User::set_pollout()
+	{
+		pollfd *pfd = get_pollfd();
+		pfd->events |= POLLOUT;
+	}
 
-	bool compare(const c_irc::User &lhs, const  c_irc::User &rhs)
-	{ return (lhs.get_nick() < rhs.get_nick()); }
+	void User::unset_pollout()
+	{
+		pollfd *pfd = get_pollfd();
+		pfd->events &= ~POLLOUT;
+	}
+
+	pollfd *User::get_pollfd()
+	{
+		if (pfds_index and pfds_index < pfds.size())
+			if (pfds[pfds_index].fd == fd)
+				return (&pfds[pfds_index]);
+		for (size_t i = 0; i < pfds.size(); i++) {
+			if (pfds[i].fd == fd) {
+				pfds_index = i;
+				return (&pfds[i]);
+			}
+		}
+		return (NULL);
+	}
 } // namespace c_irc

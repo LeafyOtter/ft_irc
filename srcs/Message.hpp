@@ -16,36 +16,36 @@ namespace c_irc
 			TARGET_RANGE
 		} target_type_t;
 
-		bool			to_pop;
-		std::string		message;
-		target_type_t	target_type;
-		pollfd			*target;
-		users_it_t		first_target;
-		users_it_t		last_target;
-		users_it_t		sender;
+		bool				to_pop;
+		std::string			message;
+		target_type_t		target_type;
+		int					target;
+		chan_users_it_t		first_target;
+		chan_users_it_t		last_target;
+		chan_users_it_t		sender;
+
+		serv_users_t		&users;
 
 		Message();
 
 		public:
 
-		Message(users_it_t first, users_it_t last);
-		Message(std::string msg, users_it_t first, users_it_t last);
-		Message(std::string msg, pollfd *new_pfd);
+		Message(serv_users_t &u, chan_users_it_t first, chan_users_it_t last);
+		Message(serv_users_t &u, int fd, std::string msg);
 		Message(const Message &other);
 		~Message();
 
 		Message &operator=(const Message &other);
 
 		std::string		get_message() const;
-
-		void			set_status();
 		bool			get_status();
+
+		void			set_message(std::string new_message);
+		void			set_sender(chan_users_it_t new_sender);
+		void			set_status();
 
 		int				nb_users() const;
 
-		void			set_sender(users_it_t new_sender);
-
-		void			set_message(std::string new_message);
 
 		void			prepare();
 	};

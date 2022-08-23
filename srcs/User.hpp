@@ -1,12 +1,15 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <poll.h>
 #include <stdint.h>
 
 namespace c_irc
 {
+
+	typedef std::vector<pollfd>		pollfds_t;
 
 	class User
 	{
@@ -19,13 +22,16 @@ namespace c_irc
 
 		uint16_t		mode;
 
-		pollfd			*pfd;
+		int				fd;
+
+		pollfds_t		&pfds;
+		size_t			pfds_index;
 
 		User();
 
 		public:
 
-		User(pollfd *new_pfd);
+		User(int new_fd, pollfds_t &new_pfds);
 		~User();
 
 		std::string		get_nick() const;
@@ -33,7 +39,7 @@ namespace c_irc
 		std::string		get_host() const;
 		std::string		get_realname() const;
 		uint16_t		get_mode() const;
-		pollfd			*get_pfd() const;
+		int				get_fd() const;
 
 		void			set_nick(std::string new_nick);
 		void			set_user(std::string new_user);
@@ -46,5 +52,6 @@ namespace c_irc
 
 		void			set_pollout();
 		void			unset_pollout();
+		pollfd			*get_pollfd();
 	};
 } // namespace c_irc

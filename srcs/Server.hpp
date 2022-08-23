@@ -19,8 +19,8 @@ namespace c_irc
 		uint16_t		ip;
 		uint16_t		port;
 
-		users_t			users;
 		pollfds_t		pollfds;
+		serv_users_t	users;
 
 		channels_t		channels;
 		messages_t		buffer;
@@ -37,13 +37,15 @@ namespace c_irc
 							std::string port);
 
 		void	start();
+
+		private:
+
 		void	accept_connections();
 		void	check_all_clients(int rc);
 
-		users_it_t	find_user(int fd);
-
 		void	send_message(c_irc::Message *msg, pollfd &pfd);
-		void	create_channel(std::string name, User *user);
+		void	create_channel(std::string name, int user);
 		void	delete_channel(std::string name);
+		void	delete_user(int index, int fd);
 	};
 } // namespace c_irc

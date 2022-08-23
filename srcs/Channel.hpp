@@ -23,7 +23,12 @@ namespace c_irc
 		uint16_t		mode;
 		uint16_t		limit;
 
-		users_t			users;
+		list_users_t	ban_list;
+		list_users_t	invite_list;
+
+		chan_users_t	chan_users;
+
+		serv_users_t	&serv_users;
 
 		Channel();
 		Channel(const Channel &other);
@@ -31,7 +36,7 @@ namespace c_irc
 
 		public:
 
-		Channel(std::string	new_name, c_irc::User *user);
+		Channel(serv_users_t &su, std::string new_name, int fd);
 		~Channel();
 
 		std::string		get_name() const;
@@ -45,20 +50,26 @@ namespace c_irc
 		void			set_mode(uint16_t new_mode);
 		void			set_limit(uint16_t new_limit);
 
-		void			set_user_mode(c_irc::User *user, uint16_t new_mode);
-		void			unset_user_mode(c_irc::User *user, uint16_t new_mode);
+		void			set_user_mode(int fd, uint16_t new_mode);
+		void			unset_user_mode(int fd, uint16_t new_mode);
 
-		void			add_user(c_irc::User* new_user);
-		void			remove_user(c_irc::User* new_user);
+		void			add_user(int fd);
+		void			remove_user(int fd);
 
 		void			ban_user(std::string new_user);
 		void			unban_user(std::string new_user);
 
+		void			invite_user(std::string new_user);
+		void			uninvite_user(std::string new_user);
+
 		bool			is_name_valid(std::string new_name);
 		bool			is_user_banned(std::string new_user);
+		bool			is_user_invited(std::string new_user);
 		bool			is_user_in_channel(std::string new_user);
 
-		users_it_t		begin();
-		users_it_t		end();
+		chan_users_it_t		begin();
+		chan_users_it_t		end();
+
+		chan_users_it_t		get_user(int fd);
 	};
 } // namespace c_irc

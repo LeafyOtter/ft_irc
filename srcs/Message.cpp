@@ -2,34 +2,26 @@
 
 namespace c_irc
 {
-	Message::Message(users_it_t first, users_it_t last)
+	Message::Message(serv_users_t &u, chan_users_it_t first, chan_users_it_t last)
 		: to_pop(false)
 		, message(std::string())
 		, target_type(TARGET_RANGE)
-		, target(NULL)
+		, target(0)
 		, first_target(first)
 		, last_target(last)
-		, sender(users_it_t())
+		, sender(chan_users_it_t())
+		, users(u)
 	{}
 
-	Message::Message(std::string msg, users_it_t first, users_it_t last)
-		: to_pop(false)
-		, message(msg)
-		, target_type(TARGET_RANGE)
-		, target(NULL)
-		, first_target(first)
-		, last_target(last)
-		, sender(users_it_t())
-	{}
-
-	Message::Message(std::string msg, pollfd *new_pfd)
+	Message::Message(serv_users_t &u, int fd, std::string msg)
 		: to_pop(false)
 		, message(msg)
 		, target_type(TARGET_UNREGISTERED)
-		, target(new_pfd)
-		, first_target(users_it_t())
-		, last_target(users_it_t())
-		, sender(users_it_t())
+		, target(fd)
+		, first_target(chan_users_it_t())
+		, last_target(chan_users_it_t())
+		, sender(chan_users_it_t())
+		, users(u)
 	{}
 
 	Message::Message(const Message &other)
@@ -40,6 +32,7 @@ namespace c_irc
 		, first_target(other.first_target)
 		, last_target(other.last_target)
 		, sender(other.sender)
+		, users(other.users)
 	{}
 
 	Message::~Message() {}
@@ -60,32 +53,35 @@ namespace c_irc
 	}
 
 	std::string Message::get_message() const { return (message); }
-	void Message::set_status() { to_pop = true; }
 	bool Message::get_status() { return (to_pop); }
-	void Message::set_message(std::string new_message) { message = new_message; }
-	void Message::set_sender(users_it_t new_sender) { sender = new_sender; }
 
-	int Message::nb_users() const {
+	void Message::set_message(std::string new_message) { message = new_message; }
+	void Message::set_sender(chan_users_it_t new_sender) { sender = new_sender; }
+	void Message::set_status() { to_pop = true; }
+
+	int Message::nb_users() const
+	{
 
 		int i = 0;
 
 		if (target_type == TARGET_UNREGISTERED)
 			return (1);
-		for (users_it_t it = first_target; it != last_target; ++it) {
+		for (chan_users_it_t it = first_target; it != last_target; ++it) {
 			if (it != sender)
 				++i;
 		}
 		return (i);
 	}
 
-	void	Message::prepare() {
+	void	Message::prepare()
+	{
 		if (target_type == TARGET_UNREGISTERED) {
-			target->events |= POLLOUT;
+			users.at(target)->set_pollout();
 			return ;
 		}
-		for (users_it_t it = first_target; it != last_target; ++it) {
+		for (chan_users_it_t it = first_target; it != last_target; ++it) {
 			if (it != sender)
-				(*it).first->set_pollout();
+				users.at(it->first)->set_pollout();
 		}
 	}
 } // namespace c_irc
