@@ -44,8 +44,9 @@ namespace c_irc
 		void			set_sender(chan_users_it_t new_sender);
 		void			set_status();
 
-		int				nb_users() const;
+		void			append_message(std::string new_message);
 
+		int				nb_users() const;
 
 		void			prepare();
 	};

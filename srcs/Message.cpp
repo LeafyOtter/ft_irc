@@ -59,6 +59,8 @@ namespace c_irc
 	void Message::set_sender(chan_users_it_t new_sender) { sender = new_sender; }
 	void Message::set_status() { to_pop = true; }
 
+	void Message::append_message(std::string new_message) { message += new_message; }
+
 	int Message::nb_users() const
 	{
 
