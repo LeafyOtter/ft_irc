@@ -55,6 +55,10 @@ namespace c_irc
 	typedef std::map<int, uint16_t>						chan_users_t;
 	typedef std::map<std::string, c_irc::Channel *>		channels_t;
 
+	typedef std::vector<std::string>					arguments_t;
+	typedef int (*functions_commands)(int, arguments_t);
+	typedef std::map<std::string, functions_commands>	commands_t;
+
 	typedef serv_users_t::iterator						serv_users_it_t; //suit
 	typedef chan_users_t::iterator						chan_users_it_t; //cuit
 	typedef channels_t::iterator						channels_it_t;
