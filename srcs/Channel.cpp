@@ -88,8 +88,16 @@ namespace c_irc
 
 	bool Channel::is_name_valid(std::string new_name)
 	{
-		(void)new_name;
-		// TODO: implement
+		std::string start = "#&+!";
+
+		if (new_name.size() > 50)
+			return (false);
+		if (start.find(new_name[0]) == std::string::npos)
+			return (false);
+		if (new_name.find_first_of(" \t,:;") != std::string::npos)
+			return (false);
+		if (new_name.find("^G") != std::string::npos)
+			return (false);
 		return (true);
 	}
 
