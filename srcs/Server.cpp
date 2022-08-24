@@ -1,3 +1,4 @@
+#include "Command.hpp"
 #include "Server.hpp"
 #include "Message.hpp"
 
@@ -109,6 +110,8 @@ namespace c_irc
 		LOG("listen() success");
 		LOG("Address : " << inet_ntoa(server_addr.sin_addr));
 		LOG("Listening on port: " << ntohs(server_addr.sin_port));
+
+		init_commands();
 	}
 
 	void	Server::start()
@@ -188,44 +191,7 @@ namespace c_irc
 					delete_user(i, pollfds[i].fd);
 					continue ;
 				}
-				// parse_message(buf, pollfds[i].fd);
-				// TODO: Delete 192 to 228
-
-				c_irc::User *user = users.find(pollfds[i].fd)->second;
-
-				std::string str = "Client " + c_irc::to_string(pollfds[i].fd) + ": " + std::string(buf);
-				std::cout << str;
-
-				// parse message
-				if (std::string(buf) == "Create Channel\n") {
-					create_channel("#test", pollfds[i].fd);
-					return ;
-				}
-
-				if (std::string(buf) == "Join Channel\n") {
-					if (channels.find("#test") != channels.end()) {
-						channels["#test"]->add_user(pollfds[i].fd);
-					}
-					else
-						LOG("Channel #test not found");
-					return ;
-				}
-
-				c_irc::Message *msg;
-
-				// create new Message
-
-				if (!channels.empty() && \
-					channels["#test"]->is_user_in_channel(user->get_nick()))
-				{
-					msg = new c_irc::Message(users, channels["#test"]->begin(), channels["#test"]->end());
-					str = "Sent from channel #test : " + str;
-					msg->set_message(str);
-					msg->set_sender(channels["#test"]->get_user(pollfds[i].fd));
-					buffer.push(msg);
-				}
-				else
-					LOG("User " << user->get_nick() << " not in channel #test");
+				parse_message(buf, pollfds[i].fd);
 			}
 			if (pollfds[i].revents & POLLOUT)
 				send_message(buffer.front(), pollfds[i]);
@@ -270,5 +236,77 @@ namespace c_irc
 		users.erase(it);
 		pollfds.erase(pollfds.begin() + index);
 	}
-	
+
+	void	Server::parse_message(std::string msg, int fd)
+	{
+		std::string delimiter = "\r\n";
+		size_t pos = 0;
+
+		users[fd]->append_buffer(msg);
+
+		while (1)
+		{
+			msg = users[fd]->get_buffer();
+			pos = msg.find(delimiter);
+			if (pos == std::string::npos)
+				return ;
+			users[fd]->set_buffer(msg.substr(pos + delimiter.length()));
+
+			c_irc::Command cmd(msg.substr(0, pos));
+		
+			std::cout << cmd;
+			execute_command(cmd, fd);
+		}
+	}
+
+	void	Server::execute_command(c_irc::Command &cmd, int fd)
+	{
+		commands_t::iterator it = commands.find(cmd.get_cmd());
+
+		if (it == commands.end())
+			return ;
+		cmd_ptr ptr = (*it).second;
+		(this->*ptr)(fd, cmd.get_args());
+	}
+
+	void	Server::init_commands()
+	{
+		commands["NICK"] = &Server::cmd_nick;
+	}
+
+	// cmd_nick
+	// TODO: put in a separate file
+	// NICK <nick>
+
+	void Server::cmd_nick(int fd, arguments_t &args)
+	{
+		(void)fd;
+		(void)args;
+		LOG("NICK command");
+		if (args.size() != 1) {
+			std::string str = "461 ERR_NEEDMOREPARAMS NICK :Not enough parameters";
+			c_irc::Message *msg = new c_irc::Message(users, fd, str);
+			buffer.push(msg);
+			return ;
+		}
+		users[fd]->set_nick(args[0]);
+		std::string str = "NICK " + args[0];
+		c_irc::Message *msg = new c_irc::Message(users, fd, str);
+		buffer.push(msg);
+		// users[fd]->send_message(c_irc::Message("NICK " + args[0]));
+	}
+
+	void Server::queue_message(std::string msg, int fd)
+	{
+		c_irc::Message *msg = new c_irc::Message(users, fd, msg);
+		buffer.push(msg);
+	}
+
+	void Server::queue_message(std::string msg, chan_users_it_t first, chan_users_it_t last)
+	{
+		c_irc::Message *msg = new c_irc::Message(users, first, last);
+		msg.set_message(msg);
+		buffer.push(msg);
+	}
+
 } // namespace c_irc
