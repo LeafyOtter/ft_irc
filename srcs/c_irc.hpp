@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 // used in User.hpp
-#define U_MODE_REGISTERED		0x0001	// r : registered user
+#define U_MODE_RESTRICTED		0x0001	// r : restricted user
 #define U_MODE_INVISIBLE		0x0002	// i : invisible
 #define U_MODE_LOCAL_OPERATOR	0x0004	// o : local operator
 
@@ -56,8 +56,6 @@ namespace c_irc
 	typedef std::map<std::string, c_irc::Channel *>		channels_t;
 
 	typedef std::vector<std::string>					arguments_t;
-	typedef int (*functions_commands)(int, arguments_t);
-	typedef std::map<std::string, functions_commands>	commands_t;
 
 	typedef serv_users_t::iterator						serv_users_it_t; //suit
 	typedef chan_users_t::iterator						chan_users_it_t; //cuit
