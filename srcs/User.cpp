@@ -1,3 +1,4 @@
+#include "c_irc.hpp"
 #include "User.hpp"
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace c_irc
 		, user("")
 		, host("")
 		, realname("")
-		, mode(0)
+		, mode(U_MODE_RESTRICTED)
 		, fd(new_fd)
 		, pfds(new_pfds)
 		, pfds_index(0)
