@@ -193,7 +193,7 @@ namespace c_irc
 
 				c_irc::User *user = users.find(pollfds[i].fd)->second;
 
-				std::string str = "Client " + c_irc::to_string(pollfds[i].fd - 3) + ": " + std::string(buf);
+				std::string str = "Client " + c_irc::to_string(pollfds[i].fd) + ": " + std::string(buf);
 				std::cout << str;
 
 				// parse message
@@ -270,5 +270,5 @@ namespace c_irc
 		users.erase(it);
 		pollfds.erase(pollfds.begin() + index);
 	}
-
+	
 } // namespace c_irc
