@@ -27,6 +27,8 @@ namespace c_irc
 		pollfds_t		&pfds;
 		size_t			pfds_index;
 
+		std::string		buffer;
+
 		User();
 
 		public:

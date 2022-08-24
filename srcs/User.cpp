@@ -14,6 +14,7 @@ namespace c_irc
 		, fd(new_fd)
 		, pfds(new_pfds)
 		, pfds_index(0)
+		, buffer("")
 	{
 		get_pollfd();	// initialize pfds_index
 	}
