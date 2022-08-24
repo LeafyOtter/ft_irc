@@ -42,12 +42,15 @@ namespace c_irc
 		std::string		get_realname() const;
 		uint16_t		get_mode() const;
 		int				get_fd() const;
+		std::string		get_buffer() const;
 
 		void			set_nick(std::string new_nick);
 		void			set_user(std::string new_user);
 		void			set_host(std::string new_host);
 		void			set_realname(std::string new_realname);
 		void			set_mode(uint16_t new_mode);
+		void			set_buffer(std::string new_buffer);
+		void			append_buffer(std::string append);
 
 		void			set_flag_mode(uint16_t flag);
 		void			unset_flag_mode(uint16_t flag);
