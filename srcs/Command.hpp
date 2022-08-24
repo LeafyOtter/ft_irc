@@ -18,6 +18,7 @@ namespace c_irc
 
 		std::string		get_cmd() const;
 		std::string		get_arg(int index) const;
+		arguments_t		&get_args();
 		size_t			get_arg_count() const;
 
 		void	parsing(std::string raw);

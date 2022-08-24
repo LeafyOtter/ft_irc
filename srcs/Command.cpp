@@ -55,6 +55,7 @@ namespace c_irc
 
 	std::string Command::get_cmd() const { return (cmd); }
 	std::string Command::get_arg(int index) const { return (arguments[index]); }
+	arguments_t &Command::get_args() { return (arguments); }
 	size_t 		Command::get_arg_count() const { return (arguments.size()); }
 
 	std::ostream &operator<<(std::ostream &os, const Command &cmd)
