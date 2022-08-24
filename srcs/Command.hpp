@@ -15,5 +15,13 @@ namespace c_irc
 
 		Command(std::string raw);
 		~Command();
+
+		std::string		get_cmd() const;
+		std::string		get_arg(int index) const;
+		size_t			get_arg_count() const;
+
+		void	parsing(std::string raw);
 	};
+
+	std::ostream& operator<<(std::ostream &os, const Command &cmd);
 } // namespace c_irc

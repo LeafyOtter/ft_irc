@@ -4,35 +4,64 @@ namespace c_irc
 {
 	Command::Command(std::string raw)
 	{
-		// Split the raw command into the command and the arguments
-		// use either space or colon as separator
-		size_t pos = raw.find_first_of(" :");
-		std::string tmp;
+		parsing(raw);
+	}
 
+	Command::~Command()
+	{
+		arguments.clear();
+	}
+
+	void Command::parsing(std::string raw)
+	{
+		size_t pos;
+		size_t pos_end;
+		std::string tmp;
+		std::string delimiter;
+
+
+		delimiter = ": ";
+		pos = raw.find_first_of(delimiter);
+		cmd = raw.substr(0, pos);
 		if (pos == std::string::npos)
-		{
-			cmd = raw;
 			return ;
-		}
-		cmd = raw.substr(0, pos - 1);
-		raw = raw.substr(pos - 1);
 		while (0xCAFE)
 		{
+			raw = raw.substr(pos + 1);
 			if (raw[0] == ':')
 			{
-				pos = raw.find(':');
-				if (pos == std::string::npos)
-					tmp = raw.substr(1);
+				delimiter = ":";
+				pos_end = raw.find_first_of(delimiter, 1);
+				if (pos_end != std::string::npos)
+					tmp = raw.substr(1, pos_end - 1);
 				else
-					tmp = raw.substr(1, pos - 1);
-				arguments.push_back(tmp);
+					tmp = raw.substr(1);
+			}
+			else
+			{
+				delimiter = " :";
+				pos = raw.find_first_not_of(delimiter);
 				if (pos == std::string::npos)
 					break ;
-				continue ;
+				pos_end = raw.find_first_of(delimiter, pos);
+				tmp = raw.substr(pos, pos_end - pos);
 			}
-			pos = raw.find_first_of(" :");
-
-			arguments.push_back(raw.substr(0, pos));
+			arguments.push_back(tmp);
+			pos = pos_end;
+			if (pos == std::string::npos)
+				break ;
 		}
+	}
+
+	std::string Command::get_cmd() const { return (cmd); }
+	std::string Command::get_arg(int index) const { return (arguments[index]); }
+	size_t 		Command::get_arg_count() const { return (arguments.size()); }
+
+	std::ostream &operator<<(std::ostream &os, const Command &cmd)
+	{
+		os << "\tCmd : [" << cmd.get_cmd() << "]" << std::endl;
+		for (size_t i = 0; i < cmd.get_arg_count(); i++)
+			os << "\t\tArg : [" << cmd.get_arg(i) << "]" << std::endl;
+		return (os);
 	}
 } // namespace c_irc
