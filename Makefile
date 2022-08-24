@@ -12,7 +12,8 @@ SRCS_LIST = \
 	Server.cpp \
 	User.cpp \
 	Message.cpp \
-	Channel.cpp
+	Channel.cpp \
+	Command.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
