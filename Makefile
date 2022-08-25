@@ -13,7 +13,11 @@ SRCS_LIST = \
 	User.cpp \
 	Message.cpp \
 	Channel.cpp \
-	Command.cpp
+	Command.cpp \
+	commands/user/nick.cpp \
+	commands/user/pass.cpp \
+	commands/user/user.cpp \
+	commands/user/cap.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
