@@ -31,7 +31,7 @@ namespace c_irc
 
 		user.set_user(args[0]);
 
-		if (stoi(args[1]) & 0x0002)
+		if (c_irc::stoi(args[1]) & 0x0002)
 			user.set_mode(user.get_mode() | U_MODE_INVISIBLE);
 
 		// args[2] : unused
