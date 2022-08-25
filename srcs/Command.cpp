@@ -60,9 +60,13 @@ namespace c_irc
 
 	std::ostream &operator<<(std::ostream &os, const Command &cmd)
 	{
-		os << "Cmd : [" << cmd.get_cmd() << "]" << std::endl;
+		os << "Command\t    : ";
+		os << COLOR_GREEN;
+		os << "[" << cmd.get_cmd() << "]";
+		os << COLOR_RESET;
 		for (size_t i = 0; i < cmd.get_arg_count(); i++)
-			os << "\tArg : [" << cmd.get_arg(i) << "]" << std::endl;
+			os << "[" << cmd.get_arg(i) << "]";
+		os << std::endl;
 		return (os);
 	}
 } // namespace c_irc
