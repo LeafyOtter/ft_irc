@@ -2,12 +2,18 @@
 
 #include <string>
 
-#define HOST "c_irc.net"
+#define VERSION "0.0.1"
 
-#define RPL_WELCOME(nick, username) "c_irc.net 001 " + nick + " :Welcome to the Internet Relay Network " + username + "!" + username + "@c_irc.net"
-#define RPL_YOURHOST(host, version) HOST + " 002 " + host + " :Your host is " + host + ", running version " + version
-#define RPL_CREATED(created) HOST + " 003 :This server was created " + created
-#define RPL_MYINFO(host, version, usermodes, chanmodes) HOST + " 004 " + host + " " + version + " " + usermodes + " " + chanmodes + " :" + host
+#define RPL_WELCOME(nick, username) \
+	":c_irc.net 001 " + nick + " :Welcome to the Internet Relay Network " \
+	+ username + "!" + username + "@c_irc.net\r\n"
+#define RPL_YOURHOST(nick) \
+	":c_irc.net 002 " + nick + " :Your host is c_irc.net, running version " \
+	+ VERSION + "\r\n"
+#define RPL_CREATED(nick, created) \
+	":c_irc.net 003 " + nick + " :This server was created " + created + "\r\n"
+#define RPL_MYINFO(nick) \
+	":c_irc.net 004 " + nick + " :c_irc.net " + VERSION + " ior iklost\r\n"
 
 
 //001    RPL_WELCOME
