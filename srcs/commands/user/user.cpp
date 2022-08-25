@@ -10,28 +10,37 @@ namespace c_irc
 {
 	void Server::cmd_user(int fd, arguments_t &args)
 	{
-		(void)fd;
-		(void)args;
+		std::string nick;
 		c_irc::User &user = *users[fd];
 
-		users[fd]->set_user(c_irc::to_string(fd));
-
-
-		if (not user.get_nick().empty() and \
-			not user.get_user().empty())
+		nick = user.get_nick();
+		if (args.size() < 4)
 		{
-			LOG_USER(fd, "registered");
-			if (not (user.get_mode() & U_MODE_WELCOMED))
-			{
-				LOG_USER(fd, "welcoming");
-				std::string welcome;
-
-				welcome  = RPL_WELCOME(user.get_nick(), user.get_user());
-				welcome += RPL_YOURHOST(user.get_nick());
-				welcome += RPL_CREATED(user.get_nick(), "[Placeholder]");
-				welcome += RPL_MYINFO(user.get_nick());
-				queue_message(welcome, fd);
-			}
+			queue_message(ERR_NEEDMOREPARAMS(nick, "USER"), fd);
+			return ;
 		}
+
+		if (args.size() > 4)
+			return ;
+
+		if (user.get_mode() & U_MODE_REGISTERED_USER)
+		{
+			queue_message(ERR_ALREADYREGISTERED(nick), fd);
+			return ;
+		}
+
+		user.set_user(args[0]);
+
+		if (stoi(args[1]) & 0x0002)
+			user.set_mode(user.get_mode() | U_MODE_INVISIBLE);
+
+		// args[2] : unused
+
+		user.set_realname(args[3]);
+
+		user.set_mode(user.get_mode() | U_MODE_REGISTERED_USER);
+
+		if (user.get_mode() & U_MODE_RESTRICTED)
+			welcome(fd);
 	}
 } // namespace c_irc
