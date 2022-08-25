@@ -8,7 +8,7 @@ int main(int ac, char **av)
 {
 	if (ac != 3)
 	{
-		std::cout << "Usage: ./server <ip> <port>" << std::endl;
+		std::cout << "Usage: ./server <port> <pass>" << std::endl;
 		return (0);
 	}
 
