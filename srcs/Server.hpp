@@ -71,5 +71,7 @@ namespace c_irc
 		void			cmd_pass(int fd, arguments_t &args);
 		void			cmd_user(int fd, arguments_t &args);
 		void			cmd_cap(int fd, arguments_t &args);
+
+		void			welcome(int fd);
 	};
 } // namespace c_irc
