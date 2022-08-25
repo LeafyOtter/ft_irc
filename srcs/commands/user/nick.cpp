@@ -48,7 +48,6 @@ namespace c_irc
 	// [x] no nickname given
 	// [x] nickname already used
 	// [x] erroneous nickname
-	// [x] restricted connection
 
 	void Server::cmd_nick(int fd, arguments_t &args)
 	{
