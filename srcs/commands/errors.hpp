@@ -11,5 +11,3 @@
 	":c_irc 461 " + nick + " " + n + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) \
 	":c_irc 462 " + nick + " :Unauthorized command (already registered)\r\n"
-#define ERR_RESTRICTED(nick) \
-	":c_irc 484 " + nick + " :You are restricted from this server\r\n"
