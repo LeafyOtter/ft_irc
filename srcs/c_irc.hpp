@@ -15,6 +15,7 @@
 #define U_MODE_RESTRICTED		0x0001	// r : restricted user
 #define U_MODE_INVISIBLE		0x0002	// i : invisible
 #define U_MODE_LOCAL_OPERATOR	0x0004	// o : local operator
+#define U_MODE_WELCOMED			0x0008	// w : welcomed
 
 // Used in Channel.hpp in chan_users_t
 #define CU_JOINED				0x0001	//   : user is in channel
@@ -33,6 +34,17 @@
  * Can still talk in channel, if U_MODE_CHAN_OPERATOR is set
  * Can still join channel, if invited by chanop
  */
+
+// Colors
+#define COLOR_BLACK				"\x1b[30m"
+#define COLOR_RED				"\x1b[31m"
+#define COLOR_GREEN				"\x1b[32m"
+#define COLOR_YELLOW			"\x1b[33m"
+#define COLOR_BLUE				"\x1b[34m"
+#define COLOR_MAGENTA			"\x1b[35m"
+#define COLOR_CYAN				"\x1b[36m"
+#define COLOR_WHITE				"\x1b[37m"
+#define COLOR_RESET				"\x1b[0m"
 
 #include "User.hpp"
 
