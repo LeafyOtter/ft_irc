@@ -1,9 +1,11 @@
 #include "Server.hpp"
 #include "../errors.hpp"
+#include "../replies.hpp"
+
+#include <iostream>
 
 namespace c_irc
 {
-
 	// TODO: move thoses functions to a separate file
 
 	bool is_special(char c)
@@ -29,15 +31,15 @@ namespace c_irc
 		return (false);
 	}
 
-	bool is_nickname_valid(const std::string &nickname)
+	static bool is_nickname_valid(const std::string &nickname)
 	{
 		if (nickname.size() > 9)
 			return (false);
 		if (not is_letter(nickname[0]) and not is_special(nickname[0]))
 			return (false);
 		for (size_t i = 1; i < nickname.size(); i++)
-			if (not is_letter(nickname[i]) and not is_digit(nickname[i]) and
-				not is_special(nickname[i]) and not nickname[i] == '-')
+			if (not is_letter(nickname[i]) and not is_digit(nickname[i]) and \
+				not is_special(nickname[i]) and not (nickname[i] == '-'))
 				return (false);
 		return (true);
 	}
@@ -51,16 +53,20 @@ namespace c_irc
 	void Server::cmd_nick(int fd, arguments_t &args)
 	{
 		std::string nick;
+		std::string old_nick;
 		c_irc::User &user = *users[fd];
 
-		if (user.get_mode() | U_MODE_RESTRICTED)
+		old_nick = user.get_nick();
+		old_nick = old_nick.empty() ? "*" : old_nick;
+
+		if (user.get_mode() & U_MODE_RESTRICTED)
 		{
-			queue_message(ERR_RESTRICTED, fd);
+			queue_message(ERR_RESTRICTED(old_nick), fd);
 			return ;
 		}
 
 		if (args.empty()) {
-			queue_message(ERR_NONICKNAMEGIVEN, fd);
+			queue_message(ERR_NONICKNAMEGIVEN(old_nick), fd);
 			return ;
 		}
 
@@ -70,17 +76,35 @@ namespace c_irc
 		{
 			if ((*it).first != fd and (*it).second->get_nick() == nick)
 			{
-				queue_message(ERR_NICKNAMEINUSE, fd);
+				queue_message(ERR_NICKNAMEINUSE(old_nick, nick), fd);
 				return ;
 			}
 		}
 
 		if (not is_nickname_valid(nick))
 		{
-			queue_message(ERR_ERRONEUSNICKNAME(nick), fd);
+			queue_message(ERR_ERRONEUSNICKNAME(old_nick, nick), fd);
 			return ;
 		}
 
 		user.set_nick(nick);
+		LOG_USER(fd, "set nickname to " << nick);
+
+		if (not user.get_nick().empty() and \
+			not user.get_user().empty())
+		{
+			LOG_USER(fd, "registered");
+			if (not (user.get_mode() & U_MODE_WELCOMED))
+			{
+				LOG_USER(fd, "welcoming");
+				std::string welcome;
+
+				welcome  = RPL_WELCOME(user.get_nick(), user.get_user());
+				welcome += RPL_YOURHOST(user.get_nick());
+				welcome += RPL_CREATED(user.get_nick(), "[Placeholder]");
+				welcome += RPL_MYINFO(user.get_nick());
+				queue_message(welcome, fd);
+			}
+		}
 	}
 } // namespace c_irc
