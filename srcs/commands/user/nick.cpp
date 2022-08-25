@@ -81,6 +81,8 @@ namespace c_irc
 		}
 
 		user.set_nick(nick);
+		user.set_mode(user.get_mode() | U_MODE_REGISTERED_NICK);
+
 		LOG_USER(fd, "set nickname to " << nick);
 
 		if (user.get_mode() & U_MODE_RESTRICTED)
