@@ -5,13 +5,13 @@
 
 namespace c_irc
 {
-	int 		stoi(std::string str)
-	{
-		int i;
-		std::stringstream ss(str);
-		ss >> i;
-		return (i);
-	}
+	// int 	stoi(std::string str)
+	// {
+	// 	int i;
+	// 	std::stringstream ss(str);
+	// 	ss >> i;
+	// 	return (i);
+	// }
 
 	template <typename T>
 	std::string	to_string(T value)
