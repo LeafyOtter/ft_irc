@@ -15,7 +15,9 @@
 #define U_MODE_RESTRICTED		0x0001	// r : restricted user
 #define U_MODE_INVISIBLE		0x0002	// i : invisible
 #define U_MODE_LOCAL_OPERATOR	0x0004	// o : local operator
-#define U_MODE_WELCOMED			0x0008	// w : welcomed
+#define U_MODE_REGISTERED_PASS	0x0008	// client sent pass command (on registration)
+#define U_MODE_REGISTERED_USER	0x0010	// client sent user command (on registration)
+#define U_MODE_REGISTERED_NICK	0x0020	// client sent nick command (on registration)
 
 // Used in Channel.hpp in chan_users_t
 #define CU_JOINED				0x0001	//   : user is in channel
