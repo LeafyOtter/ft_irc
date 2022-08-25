@@ -10,8 +10,8 @@ namespace c_irc
 		std::string welcome;
 		c_irc::User &user = *users[fd];
 		
-		if (not(user.get_mode() & U_MODE_REGISTERED_NICK) and \
-			not (user.get_mode() & U_MODE_REGISTERED_USER))
+		if (not ((user.get_mode() & U_MODE_REGISTERED_NICK) and \
+			(user.get_mode() & U_MODE_REGISTERED_USER)))
 			return ;
 		LOG_USER(fd, "welcoming");	
 		welcome  = RPL_WELCOME(user.get_nick(), user.get_user());
