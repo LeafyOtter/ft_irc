@@ -72,6 +72,27 @@ namespace c_irc
 		void			cmd_user(int fd, arguments_t &args);
 		void			cmd_cap(int fd, arguments_t &args);
 
+		void			cmd_oper(int fd, arguments_t &args);
+		void			cmd_mode(int fd, arguments_t &args);
+		void			cmd_quit(int fd, arguments_t &args);
+		void			cmd_kick(int fd, arguments_t &args);
+		void			cmd_join(int fd, arguments_t &args);
+		void			cmd_part(int fd, arguments_t &args);
+		void			cmd_topic(int fd, arguments_t &args);
+		void			cmd_names(int fd, arguments_t &args);
+		void			cmd_list(int fd, arguments_t &args);
+		void			cmd_privmsg(int fd, arguments_t &args);
+		void			cmd_kill(int fd, arguments_t &args);
+		void			cmd_ping(int fd, arguments_t &args);
+		void			cmd_notice(int fd, arguments_t &args);
+		void			cmd_invite(int fd, arguments_t &args);
+		void			cmd_time(int fd, arguments_t &args);
+
+		void			cmd_pong(int fd, arguments_t &args);
+		void			cmd_motd(int fd, arguments_t &args);
+		void			cmd_info(int fd, arguments_t &args);
+		void			cmd_version(int fd, arguments_t &args);
+
 		void			welcome(int fd);
 	};
 } // namespace c_irc
