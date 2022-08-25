@@ -28,14 +28,25 @@ void signal_handler(int signum)
 
 namespace c_irc
 {
+	int 	stoi(std::string str)
+	{
+		int i;
+		std::stringstream ss(str);
+		ss >> i;
+		return (i);
+	}
+
 	Server::Server()
 	{}
 
 	Server::~Server()
 	{
 		for (size_t i = 0; i < users.size(); i++) {
-			close(users[i]->get_fd());
-			delete users[i];
+			if (users[i] != NULL)
+			{
+				close(users[i]->get_fd());
+				delete users[i];
+			}
 		}
 		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
 			delete it->second;
@@ -50,13 +61,13 @@ namespace c_irc
 	}
 
 	void	Server::initialize(	std::string new_name,
-								std::string new_ip,
-								std::string new_port)
+								std::string new_port,
+								std::string new_password)
 	{
 		int rc;
 
 		name = new_name;
-		ip = inet_addr(new_ip.c_str());
+		password = new_password;
 		port = htons(c_irc::stoi(new_port));	// replace stoi (not std=c++98 compliant)
 
 		/*
@@ -168,9 +179,8 @@ namespace c_irc
 		pfd.revents = 0;
 		pollfds.push_back(pfd);
 
-		LOG("New user added");
+		LOG_USER(pfd.fd, "User class connected");
 		c_irc::User *new_user = new c_irc::User(pfd.fd, pollfds); // TODO : refactor
-		new_user->set_nick(c_irc::to_string(pollfds.back().fd - 3));
 		users.insert(std::make_pair(pfd.fd, new_user));
 	}
 
@@ -227,7 +237,7 @@ namespace c_irc
 
 	void	Server::delete_user(int index, int fd)
 	{
-		LOG("Client " << fd << " disconnected");
+		LOG_USER(fd, "disconnected from server");
 		close(fd);
 		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
 			(*it).second->remove_user(fd);
@@ -254,7 +264,8 @@ namespace c_irc
 
 			c_irc::Command cmd(msg.substr(0, pos));
 		
-			std::cout << cmd;
+			if (not cmd.get_cmd().empty())
+				std::cout << cmd;
 			execute_command(cmd, fd);
 		}
 	}
@@ -272,41 +283,24 @@ namespace c_irc
 	void	Server::init_commands()
 	{
 		commands["NICK"] = &Server::cmd_nick;
+		commands["PASS"] = &Server::cmd_pass;
+		commands["USER"] = &Server::cmd_user;
+		commands["CAP"] = &Server::cmd_cap;
 	}
 
-	// cmd_nick
-	// TODO: put in a separate file
-	// NICK <nick>
-
-	void Server::cmd_nick(int fd, arguments_t &args)
+	void Server::queue_message(std::string payload, int fd)
 	{
-		(void)fd;
-		(void)args;
-		LOG("NICK command");
-		if (args.size() != 1) {
-			std::string str = "461 ERR_NEEDMOREPARAMS NICK :Not enough parameters";
-			c_irc::Message *msg = new c_irc::Message(users, fd, str);
-			buffer.push(msg);
-			return ;
-		}
-		users[fd]->set_nick(args[0]);
-		std::string str = "NICK " + args[0];
-		c_irc::Message *msg = new c_irc::Message(users, fd, str);
-		buffer.push(msg);
-		// users[fd]->send_message(c_irc::Message("NICK " + args[0]));
-	}
-
-	void Server::queue_message(std::string msg, int fd)
-	{
-		c_irc::Message *msg = new c_irc::Message(users, fd, msg);
+		c_irc::Message *msg = new c_irc::Message(users, fd, payload);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string msg, chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, chan_users_it_t first, chan_users_it_t last)
 	{
 		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg.set_message(msg);
+		msg->set_message(payload);
 		buffer.push(msg);
 	}
+
+	std::string Server::get_password() const { return (password);}
 
 } // namespace c_irc
