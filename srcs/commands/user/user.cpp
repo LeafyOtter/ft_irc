@@ -13,6 +13,9 @@ namespace c_irc
 		std::string nick;
 		c_irc::User &user = *users[fd];
 
+		if (not (user.get_mode() & U_MODE_REGISTERED_PASS))
+			return ;
+
 		nick = user.get_nick();
 		if (args.size() < 4)
 		{

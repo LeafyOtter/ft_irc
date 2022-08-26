@@ -58,6 +58,9 @@ namespace c_irc
 		old_nick = user.get_nick();
 		old_nick = old_nick.empty() ? "*" : old_nick;
 
+		if (not (user.get_mode() & U_MODE_REGISTERED_PASS))
+			return ;
+
 		if (args.empty()) {
 			queue_message(ERR_NONICKNAMEGIVEN(old_nick), fd);
 			return ;
