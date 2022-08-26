@@ -52,6 +52,7 @@ namespace c_irc
 		void			set_buffer(std::string new_buffer);
 		void			append_buffer(std::string append);
 
+		bool			is_mode(uint16_t flag) const;
 		void			set_flag_mode(uint16_t flag);
 		void			unset_flag_mode(uint16_t flag);
 

@@ -38,6 +38,7 @@ namespace c_irc
 	void User::set_buffer(std::string new_buffer) { buffer = new_buffer; }
 	void User::append_buffer(std::string append) { buffer += append; }
 
+	bool User::is_mode(uint16_t flag) const { return (mode & flag); }
 	void User::set_flag_mode(uint16_t flag) { mode |= flag; }
 	void User::unset_flag_mode(uint16_t flag) { mode &= ~flag; }
 
