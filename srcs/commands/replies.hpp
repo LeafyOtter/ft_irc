@@ -5,15 +5,15 @@
 #define VERSION "0.0.1"
 
 #define RPL_WELCOME(nick, username) \
-	":c_irc.net 001 " + nick + " :Welcome to the Internet Relay Network " \
-	+ username + "!" + username + "@c_irc.net\r\n"
+	":c-irc.net 001 " + nick + " :Welcome to the Internet Relay Network " \
+	+ username + "!" + username + "@c-irc.net\r\n"
 #define RPL_YOURHOST(nick) \
-	":c_irc.net 002 " + nick + " :Your host is c_irc.net, running version " \
+	":c-irc.net 002 " + nick + " :Your host is c-irc.net, running version " \
 	+ VERSION + "\r\n"
 #define RPL_CREATED(nick, created) \
-	":c_irc.net 003 " + nick + " :This server was created " + created + "\r\n"
+	":c-irc.net 003 " + nick + " :This server was created " + created + "\r\n"
 #define RPL_MYINFO(nick) \
-	":c_irc.net 004 " + nick + " :c_irc.net " + VERSION + " ior iklost\r\n"
+	":c-irc.net 004 " + nick + " :c-irc.net " + VERSION + " ior iklost\r\n"
 
 
 //001    RPL_WELCOME
