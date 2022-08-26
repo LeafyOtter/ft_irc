@@ -27,7 +27,7 @@ namespace c_irc
 			return ;
 		}
 
-		if (user.get_mode() & U_MODE_REGISTERED_PASS)
+		if (user.is_mode(U_MODE_REGISTERED_PASS))
 		{
 			queue_message(ERR_ALREADYREGISTERED(nick), fd);
 			return ;
@@ -40,7 +40,7 @@ namespace c_irc
 			return ;
 		}
 		
-		user.set_mode(user.get_mode() | U_MODE_REGISTERED_PASS);
+		user.set_flag_mode(U_MODE_REGISTERED_PASS);
 		LOG_USER(fd, "successfully registered");
 	}
 }

@@ -13,7 +13,7 @@ namespace c_irc
 		std::string nick;
 		c_irc::User &user = *users[fd];
 
-		if (not (user.get_mode() & U_MODE_REGISTERED_PASS))
+		if (not user.is_mode(U_MODE_REGISTERED_PASS))
 			return ;
 
 		nick = user.get_nick();
@@ -26,7 +26,7 @@ namespace c_irc
 		if (args.size() > 4)
 			return ;
 
-		if (user.get_mode() & U_MODE_REGISTERED_USER)
+		if (user.is_mode(U_MODE_REGISTERED_USER))
 		{
 			queue_message(ERR_ALREADYREGISTERED(nick), fd);
 			return ;
@@ -35,9 +35,9 @@ namespace c_irc
 		user.set_user(args[0]);
 		LOG_USER(fd, "set user to " << args[0]);
 
-		if (c_irc::stoi(args[1]) & 0x0002)
+		if (c_irc::stoi(args[1]) & 0x0002)	// check if 2nd bites is set
 		{
-			user.set_mode(user.get_mode() | U_MODE_INVISIBLE);
+			user.set_flag_mode(U_MODE_INVISIBLE);
 			LOG_USER(fd, "set mode to invisible");
 		}
 
@@ -46,9 +46,9 @@ namespace c_irc
 		user.set_realname(args[3]);
 		LOG_USER(fd, "set realname to " << args[3]);
 
-		user.set_mode(user.get_mode() | U_MODE_REGISTERED_USER);
+		user.set_flag_mode(U_MODE_REGISTERED_USER);
 
-		if (user.get_mode() & U_MODE_RESTRICTED)
+		if (user.is_mode(U_MODE_RESTRICTED))
 			welcome(fd);
 	}
 } // namespace c_irc

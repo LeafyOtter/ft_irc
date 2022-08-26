@@ -58,7 +58,7 @@ namespace c_irc
 		old_nick = user.get_nick();
 		old_nick = old_nick.empty() ? "*" : old_nick;
 
-		if (not (user.get_mode() & U_MODE_REGISTERED_PASS))
+		if (not user.is_mode(U_MODE_REGISTERED_PASS))
 			return ;
 
 		if (args.empty()) {
@@ -84,11 +84,11 @@ namespace c_irc
 		}
 
 		user.set_nick(nick);
-		user.set_mode(user.get_mode() | U_MODE_REGISTERED_NICK);
+		user.set_flag_mode(U_MODE_REGISTERED_NICK);
 
 		LOG_USER(fd, "set nickname to " << nick);
 
-		if (user.get_mode() & U_MODE_RESTRICTED)
+		if (user.is_mode(U_MODE_RESTRICTED))
 			welcome(fd);
 	}
 } // namespace c_irc
