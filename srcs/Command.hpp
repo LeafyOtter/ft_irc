@@ -21,7 +21,7 @@ namespace c_irc
 		arguments_t		&get_args();
 		size_t			get_arg_count() const;
 
-		void	parsing(std::string raw);
+		void			parsing(std::string raw);
 	};
 
 	std::ostream& operator<<(std::ostream &os, const Command &cmd);
