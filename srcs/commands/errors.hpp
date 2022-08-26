@@ -1,7 +1,7 @@
 #pragma once
 
 #define ERR_NONICKNAMEGIVEN(nick) \
-	":c_irc 431 " + nick + " 	:No nickname given\r\n"
+	":c_irc 431 " + nick + " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick, n) \
 	":c_irc 432 " + nick + " " + n + " :Erroneous nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, n) \
