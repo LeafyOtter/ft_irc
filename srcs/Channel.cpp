@@ -6,14 +6,14 @@ namespace c_irc
 		: name(new_name)
 		, topic("")
 		, key("")
-		, mode(CU_MODE_CHAN_OPERATOR)
+		, mode(0)
 		, limit(0)
 		, ban_list()
 		, invite_list()
 		, chan_users()
 		, serv_users(su)
 	{
-		chan_users.insert(std::make_pair(new_fd, mode));
+		chan_users.insert(std::make_pair(new_fd, true));
 	}
 
 	Channel::~Channel()

@@ -14,14 +14,10 @@
 // used in User.hpp
 #define U_MODE_RESTRICTED		0x0001	// r : restricted user
 #define U_MODE_INVISIBLE		0x0002	// i : invisible
-#define U_MODE_LOCAL_OPERATOR	0x0004	// o : local operator
+#define U_MODE_OPERATOR			0x0004	// o : local operator
 #define U_MODE_REGISTERED_PASS	0x0008	// client sent pass command (on registration)
 #define U_MODE_REGISTERED_USER	0x0010	// client sent user command (on registration)
 #define U_MODE_REGISTERED_NICK	0x0020	// client sent nick command (on registration)
-
-// Used in Channel.hpp in chan_users_t
-#define CU_JOINED				0x0001	//   : user is in channel
-#define CU_MODE_CHAN_OPERATOR	0x0002	// o : user is channel operator
 
 // Used in Channel.hpp in mode
 #define C_MODE_LIMIT			0x0001	// l : channel limit
@@ -66,7 +62,7 @@ namespace c_irc
 	typedef std::vector<pollfd>							pollfds_t;
 	typedef std::vector<std::string>					list_users_t; // list banned and invited users
 	typedef std::map<int, c_irc::User*>					serv_users_t;
-	typedef std::map<int, uint16_t>						chan_users_t;
+	typedef std::map<int, bool>							chan_users_t;
 	typedef std::map<std::string, c_irc::Channel *>		channels_t;
 
 	typedef std::vector<std::string>					arguments_t;
