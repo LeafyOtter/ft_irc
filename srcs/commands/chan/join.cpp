@@ -55,8 +55,6 @@ namespace c_irc
 	// 	}
 	// }
 
-	
-
 	void split(std::string str, char c, std::vector<std::string> &elements)
 	{
 		std::string str2;
@@ -73,6 +71,7 @@ namespace c_irc
 
 	}
 
+	//c_irc::Channel &chan = *channels["test"];
 	void Server::cmd_join(int fd, arguments_t &args)
 	{
 		std::string name = "JOIN";
@@ -85,66 +84,67 @@ namespace c_irc
 			queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
 			return ;
 		}
-		//c_irc::Channel &chan = *channels["test"];
-		
-		/*if (args[0] == "0")
+		if (args[0] == "0")
 		{
-			foreach(channels)
-				if user_name = user_name
-					channel.remove_user(int fd);
+			//foreach(channels)
+			//	(if chanels.user.getname = nick)
+			//		channel.remove_user(chanels.user.fd);
 			return; 
-		}*/
-
-		std::vector <std::string> element; 
-		std::vector <std::string> key; 
-
-		split(args[0], ',', element); 
-		
-		if (args.size() >= 2)
-		//if (not args[1].empty())
-			split(args[1], ',', key);
+		}
 
 		// verifier les droits d'acces au chan et si pastrop de chan 
-
-		/*for (element)
+		std::vector <std::string> element; 
+		std::vector <std::string> key_tab; 
+		std::string key = ""; 
+		
+		split(args[0], ',', element); 
+		if (args.size() >= 2)
+			split(args[1], ',', key_tab);
+		for(size_t i = 0; i < element.size(); i++)
 		{
-			if (not is_name_valid(args[0]))
+			std::cout << element[i] << std::endl; 
+			if (not is_name_valid(element[i]))
 			{
-				queue_message(ERR_NOSUCHCHANNEL(args[0]),fd);
+				queue_message(ERR_NOSUCHCHANNEL(element[i]),fd);
 				return; 
 			}
-			if (key not empty)
+			chan_name = element[i]; 
+			if (not key.empty())
 			{
-				if (key(i))
-					key = key[i]; 
-				else 
-					key = NULL; 		
-			if (channels.find(chan_name) != channels.end()) {
-        	std::cout << "channel exist" << std::endl;
-		// ajouter l'user dedans 
+				if (i >= key.size())
+					key = key_tab[i]; 
+			}	
+			if (channels.find(chan_name) != channels.end()) 
+			{
+        		std::cout << "channel exist" << std::endl; // a supprimer
+				channels[chan_name]->add_user(fd);
 			}
     		else 
 			{
-				//create_channel(chan_name, fd, std::string());
 				create_channel(chan_name, fd, key);
-				std::cout << "channel don't exist" << std::endl; 
+				std::cout << "channel don't exist" << std::endl; // a supprimer
 			}	
-			}
 		}
+	}
+}
 
 
-*/
+// MON BORDEL 
 
-		if (not is_name_valid(args[0]))
+
+		// a verifier : si user donne une key sur un channel existant 
+		//				si user donne un nom de chanel invalid en deuxieme position, doit on creer ceux d'apres
+
+	/*		if (not is_name_valid(args[0]))
 		{
 			queue_message(ERR_NOSUCHCHANNEL(args[0]),fd);
 			return; 
 		}
 		chan_name = args[0]; 
 
-    	if (channels.find(chan_name) != channels.end()) {
+    	if (int pos = channels.find(chan_name) != channels.end()) {
         	std::cout << "channel exist" << std::endl;
-		// ajouter l'user dedans 
+			channels[chan_name]->add_user(fd);
 		}
     	else 
 		{
@@ -152,17 +152,4 @@ namespace c_irc
 			std::cout << "channel don't exist" << std::endl; 
 		}	
 
-
-
-
-
-
-
-		// si chan existe rejoindre
-		//sinon create channel
-		
-		
-
-		
-	}
-} 
+	*/
