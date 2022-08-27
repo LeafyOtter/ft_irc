@@ -6,7 +6,7 @@
 
 #define RPL_WELCOME(nick, username) \
 	":c-irc.net 001 " + nick + " :Welcome to the Internet Relay Network " \
-	+ username + "!" + username + "@c-irc.net\r\n"
+	+ nick + "!" + username + "@c-irc.net\r\n"
 #define RPL_YOURHOST(nick) \
 	":c-irc.net 002 " + nick + " :Your host is c-irc.net, running version " \
 	+ VERSION + "\r\n"
@@ -15,7 +15,12 @@
 #define RPL_MYINFO(nick) \
 	":c-irc.net 004 " + nick + " :c-irc.net " + VERSION + " ior iklost\r\n"
 
+#define RPL_UMODEIS(nick, mode) \
+	":c-irc.net 221 " + nick + " " + mode + "\r\n"
 
+// :ircserv 221 otter otter i
+
+// :otter!otter_0x2e3@ircserv.42 MODE otter +i
 //001    RPL_WELCOME
 //       "Welcome to the Internet Relay Network
 //        <nick>!<user>@<host>"
