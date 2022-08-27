@@ -86,7 +86,7 @@ namespace c_irc
 		}
 	}
 
-	bool Channel::is_name_valid(std::string new_name)
+	/*bool Channel::is_name_valid(std::string new_name)
 	{
 		std::string start = "#&+!";
 
@@ -99,7 +99,7 @@ namespace c_irc
 		if (new_name.find("^G") != std::string::npos)
 			return (false);
 		return (true);
-	}
+	}*/
 
 	bool Channel::is_user_banned(std::string new_user)
 	{

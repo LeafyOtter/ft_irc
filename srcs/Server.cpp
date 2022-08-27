@@ -216,12 +216,15 @@ namespace c_irc
 		msg->set_status();
 	}
 
-	void	Server::create_channel(std::string name, int user)
+	void	Server::create_channel(std::string name, int user, std::string key)
 	{
 		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
-		LOG("Channel " + name + " created");
-	}
+		if (key.empty())
+			{LOG("Channel " + name + " created");}
+		else 
+			LOG("Channel " + name + " created with key"); 
+	}	
 
 	void	Server::delete_channel(std::string name)
 	{
@@ -286,6 +289,13 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
+		commands["JOIN"] = &Server::cmd_join; 
+		commands["INVITE"] = &Server::cmd_invite; 
+		commands["KICK"] = &Server::cmd_kick; 
+		commands["LIST"] = &Server::cmd_list; 
+		commands["NAMES"] = &Server::cmd_names; 
+		commands["PART"] = &Server::cmd_part; 
+		commands["TOPIC"] = &Server::cmd_topic; 
 	}
 
 	void Server::queue_message(std::string payload, int fd)

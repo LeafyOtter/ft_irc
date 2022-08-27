@@ -51,7 +51,7 @@ namespace c_irc
 		void			check_all_clients(int rc);
 
 		void			send_message(c_irc::Message *msg, pollfd &pfd);
-		void			create_channel(std::string name, int user);
+		void			create_channel(std::string name, int user, std::string key);
 		void			delete_channel(std::string name);
 		void			delete_user(int index, int fd);
 

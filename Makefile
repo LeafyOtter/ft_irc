@@ -18,7 +18,15 @@ SRCS_LIST = \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
 	commands/user/cap.cpp \
-	commands/utils_cmd.cpp
+	commands/utils_cmd.cpp \
+	commands/chan/invite.cpp \
+	commands/chan/join.cpp \
+	commands/chan/kick.cpp \
+	commands/chan/list.cpp \
+	commands/chan/names.cpp \
+	commands/chan/part.cpp \
+	commands/chan/topic.cpp 
+
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
