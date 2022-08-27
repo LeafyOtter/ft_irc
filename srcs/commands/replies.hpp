@@ -14,6 +14,8 @@
 	":c-irc.net 003 " + nick + " :This server was created " + created + "\r\n"
 #define RPL_MYINFO(nick) \
 	":c-irc.net 004 " + nick + " :c-irc.net " + VERSION + " ior iklost\r\n"
+#define RPL_TOPIC(chan, topic) \
+	":c-irc.net 332 " + chan + " :" + topic + "\r\n"
 
 
 //001    RPL_WELCOME
