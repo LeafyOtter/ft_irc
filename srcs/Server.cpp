@@ -275,7 +275,11 @@ namespace c_irc
 		commands_t::iterator it = commands.find(cmd.get_cmd());
 
 		if (it == commands.end())
+		{
+			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
+		}
+		LOG_USER(fd, "Executing command : " + cmd.get_cmd());
 		cmd_ptr ptr = (*it).second;
 		(this->*ptr)(fd, cmd.get_args());
 	}
@@ -286,6 +290,8 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
+
+		commands["MODE"] = &Server::cmd_mode;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
