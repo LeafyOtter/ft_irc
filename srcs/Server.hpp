@@ -94,5 +94,9 @@ namespace c_irc
 		void			cmd_version(int fd, arguments_t &args);
 
 		void			welcome(int fd);
+
+		void			cmd_mode_chan(int fd, c_irc::User &user, arguments_t &args);
+		void			cmd_mode_user(int fd, c_irc::User &user, arguments_t &args);
+
 	};
 } // namespace c_irc
