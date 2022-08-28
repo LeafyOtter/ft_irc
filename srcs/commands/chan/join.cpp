@@ -7,64 +7,63 @@
 #include <vector>
 #include <string>
 
-#include "utils.tpp"
+#include "utils_chan.cpp"
 #include <iostream>
 
 /*	A FAIRE
-	- gerer JOIN 0 --> sortir de tous les chan (voir PART)
-	- gerer si channel plein --> ERR_CHANNELISFULL 
-	- gerer si le user a bien un mode operator a la creation du channel
-	- Si un JOIN réussit, l'utilisateur reçoit un message JOIN en guise de confirmation
-	- gerer l'envoi de la cle sur un chan avec cle qui existe deja -> cle incorrect ou non fournie, differente de invalid key qui est une erreur a lq definition de la cle ERR_BADCHANNELKEY
-	- certain chan en invite only,  ERR_INVITEONLYCHAN 
-	- gerer si l'utilisateur est banni ERR_BANNEDFROMCHAN
-	- gerer si l'utilisateur est sur trop de chan  ERR_TOOMANYCHANNELS
-	- envoyer le message RPL_TOPIC quand on rejoint un channel 
-	- erreur TOOMANY target
-		407    ERR_TOOMANYTARGETS
-              "<target> :<error code> recipients. <abort message>"
-
-        Returned to a client which is attempting to send a
-        PRIVMSG/NOTICE using the user@host destination format
-        and for a user@host which has several occurrences.
-
-        Returned to a client which trying to send a
-        PRIVMSG/NOTICE to too many recipients.
-
-        Returned to a client which is attempting to JOIN a safe
-    	channel using the shortname when there are more than one
-        such channel.
-	- erreur UNAVAILRESSOURCE --> - Returned by a server to a user trying to join a channel
-        currently blocked by the channel delay mechanism.
-
-        Returned by a server to a user trying to change nickname
-    	when the desired nickname is blocked by the nick delay
-        mechanism.
-
-	PLUS TARD 
+				
+	deja sur le channel ??
 	
-	- 	Une fois qu'un utilisateur a rejoint un canal, il reçoit des informations sur toutes les commandes reçues par son serveur concernant le canal. (canal qu'il a créé ??)
-		Cela inclut JOIN, MODE, KICK, PART, QUIT et bien sûr PRIVMSG/NOTICE
+	A FAIRE :
+			- JOIN 0
+			- verification utilisation de trop de chan user 
+			- ajouter une fonction inavlid key quand mauvaise syntaxe de cle : 
+				key  =  1*23( %x01-05 / %x07-08 / %x0C / %x0E-1F / %x21-7F )
+                  		; any 7-bit US_ASCII character,
+                  		; except NUL, CR, LF, FF, h/v TABs, and " "
+			- erreur entrer channel inviteonly
+			- verifier si channel full
+			- verifier si la cle est la bonne / envoi de la cle sur un chan avec cle qui existe deja -> cle incorrect ou non fournie
+			- verifier si user banni
+			- envoyer un message quand channel join (RPL_TOPIC)
 
-	- l'utilisateur doit recevoir le sujet du chan (TOPIC) + liste des utilisateur sur le canal (NAME ?)
 
-	????
-	- :WiZ!jto@tolsun.oulu.fi JOIN #Twilight_zone ; JOIN message from WiZ
-                                   on channel #Twilight_zone
-	- Les serveurs DOIVENT être capables d'analyser les arguments sous la forme d'une liste de cibles, 
-	mais NE DEVRAIENT PAS utiliser de listes lors de l'envoi de messages JOIN aux clients.
-	
-	- quand mettre cette erreur :  	ERR_NOSUCHCHANNEL --> channel qui n'existe pas alors que join creait les channels qui n'existent pas 
+	A VERIF :
+			- invalid cle n'est pas dans les erreurs
+			- Si un JOIN réussit, l'utilisateur reçoit un message JOIN en guise de confirmation differente pour l'operator et le user ? 
+			- Une fois qu'un utilisateur a rejoint un canal, il reçoit des informations sur toutes les commandes reçues par son serveur concernant le canal. (canal qu'il a créé ??)
+			- l'utilisateur doit recevoir le sujet du chan (TOPIC) + liste des utilisateur sur le canal (NAME ?)
+				This includes JOIN, MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE.
+			- erreur TOOMANY target
+				407    ERR_TOOMANYTARGETS "<target> :<error code> recipients. <abort message>"
+			- Returned to a client which is attempting to send a
+        	PRIVMSG/NOTICE using the user@host destination format
+        	and for a user@host which has several occurrences.
+			Returned to a client which trying to send a
+        	PRIVMSG/NOTICE to too many recipients.
+			Returned to a client which is attempting to JOIN a safe
+    		channel using the shortname when there are more than one
+        	such channel.
+
+			- erreur UNAVAILRESSOURCE --> - Returned by a server to a user trying to join a channel
+        	currently blocked by the channel delay mechanism.
+			Returned by a server to a user trying to change nickname
+    		when the desired nickname is blocked by the nick delay
+        	mechanism.
+			- :WiZ!jto@tolsun.oulu.fi JOIN #Twilight_zone ; JOIN message from WiZ on channel #Twilight_zone
+			- Les serveurs DOIVENT être capables d'analyser les arguments sous la forme d'une liste de cibles, 
+			mais NE DEVRAIENT PAS utiliser de listes lors de l'envoi de messages JOIN aux clients.
+			- quand mettre cette erreur :  	ERR_NOSUCHCHANNEL --> channel qui n'existe pas alors que join creait les channels qui n'existent pas 
 */
 
 /*
 							ERREURS POSSIBLES  *entree dans le fichier erreur **utilisee
 
-  			**ERR_NEEDMOREPARAMS            *ERR_BANNEDFROMCHAN
-           	*ERR_INVITEONLYCHAN             *ERR_BADCHANNELKEY
-           	*ERR_CHANNELISFULL              **ERR_BADCHANMASK
-           	*ERR_NOSUCHCHANNEL             	*ERR_TOOMANYCHANNELS
-           	ERR_TOOMANYTARGETS  			ERR_UNAVAILRESOURCE (pas trouve)
+  			**ERR_NEEDMOREPARAMS            **ERR_BANNEDFROMCHAN
+           	*ERR_INVITEONLYCHAN             **ERR_BADCHANNELKEY
+           	**ERR_CHANNELISFULL             **ERR_BADCHANMASK
+           	*ERR_NOSUCHCHANNEL             	**ERR_TOOMANYCHANNELS
+           	ERR_TOOMANYTARGETS (a verif) 			ERR_UNAVAILRESOURCE (a verif)
            	
 			*RPL_TOPIC
 */
@@ -87,37 +86,63 @@ namespace c_irc
 		return (true);
 	}
 
-	// void split(std::string str, char c, std::vector<std::string> &elements)
-	// {
-	// 	std::string str2;
-	// 	size_t db = 0;
-    
-	// 	for(size_t i = 0; i <= str.size(); i++)
-    // 	{    
-	// 		if(str[i] == c || i == str.size())
-	// 		{
-	// 			str2 = str.substr(db, i - db); 
-	// 			db = i + 1; 
- 	// 			elements.push_back(str2);  
-	// 		}
-	// 	}
-	// }
-
-	void split(std::string str, char c, std::vector<std::string> &elements)
+	bool Server::channel_autorization(std::string element, int fd, std::string key)
 	{
-		std::string str2;
-		size_t pos = 0;
-    
-		while (pos != std::string::npos)
-		{
-			pos = str.find(c);
-			str2 = str.substr(0, pos);
-			str = str.substr(pos + 1);
-			elements.push_back(str2);
-			std::cout << str2 << std::endl;
-		}
-
+			if (not is_name_valid(element))
+			{
+				queue_message(ERR_BADCHANMASK(element),fd); // nom invalide != channel inexistant
+				return 0; 
+			}
+			//if (not is_name_key_valid)
+			//{
+			//	return 0; // a verif car erreur non mentionnee : ERR_INVALIDKEY (dans channel ?)
+			//}
+			// verifier si l'user a trop de chan ERR_TOOMANYCHANNELS 
+				// return 0
+			if (channels.find(element) != channels.end()) 
+			{
+        		std::cout << "channel exist" << std::endl; // a supprimer
+				// verifier que la cle est bonne - ERR_BADCHANNELKEY
+				//	verif chan en invite only,  ERR_INVITEONLYCHAN (mode ?)
+					// return 0
+				//  si channel plein --> ERR_CHANNELISFULL  	/ limite
+				//	si l'utilisateur est banni ERR_BANNEDFROMCHAN / is_user_ban
+						// 	- envoyer le message RPL_TOPIC quand on rejoint un channel (user simple et operateur different ?)
+				channels[element]->add_user(fd);
+				return (0); 
+			}
+    		return 1; 
 	}
+
+	void Server::parse_cmd_join(arguments_t &args, int fd, std::string chan_name)
+	{	
+		std::vector <std::string> element; 
+		std::vector <std::string> key_tab; 
+		std::string key = ""; 
+		
+		split(args[0], ',', element); 
+		if (args.size() >= 2)
+			split(args[1], ',', key_tab);
+
+		for(size_t i = 0; i < element.size(); i++)
+		{
+			std::cout << element[i] << std::endl; 
+			chan_name = element[i]; 
+			if (not key.empty())
+			{
+				if (i >= key.size())
+					key = key_tab[i]; 
+			}	
+			if (channel_autorization(chan_name, fd, key))
+			{
+				create_channel(chan_name, fd, key);
+				// ajouter que l'user est en mode operator ?
+				//envoi un message (voir message operateur et user simple)				
+				std::cout << "channel don't exist" << std::endl; // a supprimer
+			}
+		}
+	}
+
 
 	void Server::cmd_join(int fd, arguments_t &args)
 	{
@@ -125,6 +150,9 @@ namespace c_irc
 		std::string chan_name; 
 		std::string nick; 
 		c_irc::User &user = *users[fd];
+
+		if (not user.is_mode(U_MODE_REGISTERED_PASS))
+			return ;
 		nick = user.get_nick();
 		if (args.empty())
 		{
@@ -133,68 +161,11 @@ namespace c_irc
 		}
 		if (args[0] == "0")
 		{
-			// remove user ou voir PART 
+			// remove user ou voir PART pour chaque channel
 			return; 
 		}
-
-		// ici verification des droits d'acces user, si channel full
-		std::vector <std::string> element; 
-		std::vector <std::string> key_tab; 
-		std::string key = ""; 
-		
-		split(args[0], ',', element); 
-		if (args.size() >= 2)
-			split(args[1], ',', key_tab);
-		for(size_t i = 0; i < element.size(); i++)
-		{
-			std::cout << element[i] << std::endl; 
-			if (not is_name_valid(element[i]))
-			{
-				queue_message(ERR_BADCHANMASK(element[i]),fd);
-				return; 
-			}
-			chan_name = element[i]; 
-			if (not key.empty())
-			{
-				if (i >= key.size())
-					key = key_tab[i]; 
-			}	
-			if (channels.find(chan_name) != channels.end()) 
-			{
-        		std::cout << "channel exist" << std::endl; // a supprimer
-				channels[chan_name]->add_user(fd);
-			}
-    		else 
-			{
-				create_channel(chan_name, fd, key);
-				std::cout << "channel don't exist" << std::endl; // a supprimer
-			}	
-		}
-	}
+		//- gerer si l'utilisateur est sur trop de chan  ERR_TOOMANYCHANNELS
+			//return;
+		parse_cmd_join(args, fd, chan_name);  
+	}	
 }
-
-
-// MON BORDEL 
-
-
-		// a verifier : si user donne une key sur un channel existant 
-		//				si user donne un nom de chanel invalid en deuxieme position, doit on creer ceux d'apres
-
-	/*		if (not is_name_valid(args[0]))
-		{
-			queue_message(ERR_NOSUCHCHANNEL(args[0]),fd);
-			return; 
-		}
-		chan_name = args[0]; 
-
-    	if (int pos = channels.find(chan_name) != channels.end()) {
-        	std::cout << "channel exist" << std::endl;
-			channels[chan_name]->add_user(fd);
-		}
-    	else 
-		{
-			create_channel(chan_name, fd, std::string()); 
-			std::cout << "channel don't exist" << std::endl; 
-		}	
-	//c_irc::Channel &chan = *channels["test"];
-	*/

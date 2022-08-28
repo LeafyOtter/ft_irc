@@ -94,5 +94,16 @@ namespace c_irc
 		void			cmd_version(int fd, arguments_t &args);
 
 		void			welcome(int fd);
+
+
+		/* 
+		 * cmd_utils
+		 */
+
+		void			print_channel_List(c_irc::Channel &chan, int count);
+		void			parse_cmd_join(arguments_t &args, int fd, std::string chan_name); 
+		
+		bool			channel_autorization(std::string element, int fd, std::string key); 
+
 	};
 } // namespace c_irc
