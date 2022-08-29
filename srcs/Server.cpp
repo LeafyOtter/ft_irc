@@ -218,6 +218,11 @@ namespace c_irc
 
 	void	Server::create_channel(std::string name, int user)
 	{
+		if (channels.find(name) != channels.end()) {
+			channels[name]->add_user(user);
+			LOG("User " << user << " added to channel " << name);
+			return ;
+		}
 		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
 		LOG("Channel " + name + " created");
@@ -276,6 +281,10 @@ namespace c_irc
 
 		if (it == commands.end())
 		{
+			if (cmd.get_cmd() == "JOIN") {
+				create_channel(cmd.get_arg(0), fd);
+				return ;
+			}
 			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
 		}
@@ -308,5 +317,4 @@ namespace c_irc
 	}
 
 	std::string Server::get_password() const { return (password);}
-
 } // namespace c_irc
