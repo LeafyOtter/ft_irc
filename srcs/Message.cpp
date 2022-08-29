@@ -69,7 +69,7 @@ namespace c_irc
 		if (target_type == TARGET_UNREGISTERED)
 			return (1);
 		for (chan_users_it_t it = first_target; it != last_target; ++it) {
-			if (it != sender)
+			if (it->first != sender->first)
 				++i;
 		}
 		return (i);
@@ -82,7 +82,7 @@ namespace c_irc
 			return ;
 		}
 		for (chan_users_it_t it = first_target; it != last_target; ++it) {
-			if (it != sender)
+			if (it->first != sender->first)
 				users.at(it->first)->set_pollout();
 		}
 	}
