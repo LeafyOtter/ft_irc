@@ -14,6 +14,7 @@ SRCS_LIST = \
 	Message.cpp \
 	Channel.cpp \
 	Command.cpp \
+	utils.cpp \
 	commands/user/nick.cpp \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
