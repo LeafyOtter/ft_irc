@@ -18,6 +18,9 @@
 #define RPL_UMODEIS(nick, mode) \
 	":c-irc.net 221 " + nick + " " + mode + "\r\n"
 
+#define RPL_CHAN_MODE(nick, user, channel, mode) \
+	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
+
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
 

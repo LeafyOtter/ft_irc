@@ -20,6 +20,10 @@
 #define ERR_ALREADYREGISTERED(nick) \
 	":c-irc.net 462 " + nick + " :Unauthorized command (already registered)\r\n"
 
+#define ERR_UNKNOWNMODE(nick, mode, chan) \
+	":c-irc.net 463 " + nick + " " + mode + \
+	" :Is unknown mode char to me for " + chan + "\r\n"
+
 #define ERR_CHANOPRIVISNEEDED(nick, chan) \
 	":c-irc.net 482 " + nick + " " + chan + " :You're not channel operator\r\n"
 
