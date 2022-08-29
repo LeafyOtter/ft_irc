@@ -1,10 +1,12 @@
 #include "Command.hpp"
+#include "utils.tpp"
 
 namespace c_irc
 {
 	Command::Command(std::string raw)
 	{
 		parsing(raw);
+		cmd = c_irc::to_upper(cmd);
 	}
 
 	Command::~Command()
