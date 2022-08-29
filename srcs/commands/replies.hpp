@@ -18,13 +18,13 @@
 #define RPL_UMODEIS(nick, mode) \
 	":c-irc.net 221 " + nick + " " + mode + "\r\n"
 
-#define RPL_CHAN_MODE(nick, user, channel, mode) \
-	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
-
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
 
-// :ircserv 221 otter otter i
+#define RPL_PONG ":c-irc.net PONG c-irc.net\r\n"
+
+#define RPL_CHAN_MODE(nick, user, channel, mode) \
+	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
 
 // :otter!otter_0x2e3@ircserv.42 MODE otter +i
 //001    RPL_WELCOME

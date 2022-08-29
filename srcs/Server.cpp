@@ -301,6 +301,8 @@ namespace c_irc
 		commands["CAP"] = &Server::cmd_cap;
 
 		commands["MODE"] = &Server::cmd_mode;
+		commands["PING"] = &Server::cmd_ping;
+
 	}
 
 	void Server::queue_message(std::string payload, int fd)
