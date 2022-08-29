@@ -135,7 +135,7 @@ namespace c_irc
 		for (chan_users_it_t it = begin(); it != end(); ++it)
 			if (serv_users.at(it->first)->get_nick() == new_user)
 				return (it->first);
-		return (0);
+		return (-1);
 	}
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
