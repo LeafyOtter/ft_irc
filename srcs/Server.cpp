@@ -295,6 +295,7 @@ namespace c_irc
 
 		commands["MODE"] = &Server::cmd_mode;
 		commands["PING"] = &Server::cmd_ping;
+		commands["TIME"] = &Server::cmd_time;
 
 	}
 

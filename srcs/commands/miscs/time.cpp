@@ -8,7 +8,7 @@ namespace c_irc
 {
 	void	Server::cmd_time(int fd, arguments_t &args)
 	{
-		std::string nick = users[fd].nick;
+		std::string nick = users[fd]->get_nick();
 
 		if (args.size() != 0 and args[0] != "c-irc.net")
 		{

@@ -21,7 +21,8 @@ SRCS_LIST = \
 	commands/user/cap.cpp \
 	commands/utils_cmd.cpp \
 	commands/miscs/mode.cpp \
-	commands/miscs/ping.cpp
+	commands/miscs/ping.cpp \
+	commands/miscs/time.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
