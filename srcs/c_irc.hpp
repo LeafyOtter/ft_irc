@@ -40,6 +40,9 @@
 
 #include "User.hpp"
 
+#define OPER_NAME				"c_irc_oper"
+#define OPER_PASS				"hello42"
+
 namespace c_irc
 {
 	class Message;
