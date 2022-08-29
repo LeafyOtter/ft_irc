@@ -1,6 +1,7 @@
 #include "c_irc.hpp"
 #include "User.hpp"
 #include <vector>
+#include <sstream>
 
 namespace c_irc
 {
@@ -67,4 +68,33 @@ namespace c_irc
 		}
 		return (NULL);
 	}
+
+	static
+	std::ostream &print_flag(std::ostream &os, uint16_t flag, uint16_t mode)
+	{
+		// √
+
+		if (mode & flag)
+			os << COLOR_GREEN << "✔";
+		else
+			os << COLOR_RED << "x";
+		os << COLOR_RESET;
+		return (os);
+	}
+
+	std::ostream& operator<<(std::ostream &os, const User &user)
+	{
+		os << user.get_nick() << " ";
+		os << "Invisible: [";
+		print_flag(os, U_MODE_INVISIBLE, user.get_mode());
+		os << "] ";
+		os << "Restricted: [";
+		print_flag(os, U_MODE_RESTRICTED, user.get_mode());
+		os << "] ";
+		os << "Operator: [";
+		print_flag(os, U_MODE_OPERATOR, user.get_mode());
+		os << "] ";
+		return (os);
+	}
+	
 } // namespace c_irc

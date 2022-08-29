@@ -211,6 +211,11 @@ namespace c_irc
 
 	void	Server::create_channel(std::string name, int user)
 	{
+		if (channels.find(name) != channels.end()) {
+			channels[name]->add_user(user);
+			LOG("User " << user << " added to channel " << name);
+			return ;
+		}
 		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
 		LOG("Channel " + name + " created");
@@ -268,7 +273,15 @@ namespace c_irc
 		commands_t::iterator it = commands.find(cmd.get_cmd());
 
 		if (it == commands.end())
+		{
+			if (cmd.get_cmd() == "JOIN") {
+				create_channel(cmd.get_arg(0), fd);
+				return ;
+			}
+			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
+		}
+		LOG_USER(fd, "Executing command : " + cmd.get_cmd());
 		cmd_ptr ptr = (*it).second;
 		(this->*ptr)(fd, cmd.get_args());
 	}
@@ -279,6 +292,10 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
+
+		commands["MODE"] = &Server::cmd_mode;
+		commands["PING"] = &Server::cmd_ping;
+
 	}
 
 	void Server::queue_message(std::string payload, int fd)
@@ -287,13 +304,26 @@ namespace c_irc
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, \
+		chan_users_it_t first, chan_users_it_t last)
 	{
+		if (first == last)
+			return ;
 		c_irc::Message *msg = new c_irc::Message(users, first, last);
 		msg->set_message(payload);
 		buffer.push(msg);
 	}
 
-	std::string Server::get_password() const { return (password);}
+	void Server::queue_message(std::string payload, \
+		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	{
+		if (first == last)
+			return ;
+		c_irc::Message *msg = new c_irc::Message(users, first, last);
+		msg->set_sender(sender);
+		msg->set_message(payload);
+		buffer.push(msg);
+	}
 
+	std::string Server::get_password() const { return (password);}
 } // namespace c_irc

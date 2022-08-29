@@ -19,7 +19,9 @@ SRCS_LIST = \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
 	commands/user/cap.cpp \
-	commands/utils_cmd.cpp
+	commands/utils_cmd.cpp \
+	commands/miscs/mode.cpp \
+	commands/miscs/ping.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs

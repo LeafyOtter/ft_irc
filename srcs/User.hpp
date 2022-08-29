@@ -60,4 +60,6 @@ namespace c_irc
 		void			unset_pollout();
 		pollfd			*get_pollfd();
 	};
+
+	std::ostream& operator<<(std::ostream &os, const User &user);
 } // namespace c_irc
