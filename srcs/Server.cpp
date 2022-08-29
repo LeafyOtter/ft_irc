@@ -286,6 +286,8 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
+
+		commands["PING"] = &Server::cmd_ping;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
