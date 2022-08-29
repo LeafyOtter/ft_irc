@@ -15,6 +15,7 @@
 #define RPL_MYINFO(nick) \
 	":c-irc.net 004 " + nick + " :c-irc.net " + VERSION + " ior iklost\r\n"
 
+#define RPL_PONG ":c-irc.net PONG c-irc.net\r\n"
 
 //001    RPL_WELCOME
 //       "Welcome to the Internet Relay Network
