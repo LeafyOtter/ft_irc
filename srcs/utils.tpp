@@ -5,7 +5,8 @@
 
 namespace c_irc
 {
-	int 	stoi(std::string str);
+	std::string	get_time();
+	int 		stoi(std::string str);
 
 	template <typename T>
 	std::string	to_string(T value)

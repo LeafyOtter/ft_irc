@@ -28,14 +28,6 @@ void signal_handler(int signum)
 
 namespace c_irc
 {
-	int 	stoi(std::string str)
-	{
-		int i;
-		std::stringstream ss(str);
-		ss >> i;
-		return (i);
-	}
-
 	Server::Server()
 	{}
 
@@ -123,6 +115,7 @@ namespace c_irc
 		LOG("Listening on port: " << ntohs(server_addr.sin_port));
 
 		init_commands();
+		creation_time = c_irc::get_time();
 	}
 
 	void	Server::start()

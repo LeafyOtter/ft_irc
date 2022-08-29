@@ -21,6 +21,9 @@
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
 
+#define RPL_TIME(nick, time) \
+	":c-irc.net 391 " + nick + " :" + time + "\r\n"
+
 #define RPL_PONG ":c-irc.net PONG c-irc.net\r\n"
 
 #define RPL_CHAN_MODE(nick, user, channel, mode) \

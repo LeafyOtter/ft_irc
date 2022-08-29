@@ -34,6 +34,8 @@ namespace c_irc
 		commands_t		commands;
 		// Logger		*log;
 
+		std::string		creation_time;
+
 		public:
 
 		Server();
