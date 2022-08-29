@@ -1,5 +1,8 @@
 #pragma once
 
+#define ERR_NOSUCHSERVER(nick, serv) \
+	":c-irc.net 401 " + nick + " " + serv + " :No such server\r\n"
+
 #define ERR_NONICKNAMEGIVEN(nick) \
 	":c-irc.net 431 " + nick + " :No nickname given\r\n"
 #define ERR_ERRONEUSNICKNAME(nick, n) \
