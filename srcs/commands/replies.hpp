@@ -21,6 +21,9 @@
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
 
+#define RPL_YOUREOPER(nick) \
+	":c-irc.net 381 " + nick + " :You are now an IRC operator\r\n"
+
 #define RPL_TIME(nick, time) \
 	":c-irc.net 391 " + nick + " :" + time + "\r\n"
 

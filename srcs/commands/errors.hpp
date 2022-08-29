@@ -30,6 +30,9 @@
 	":c-irc.net 463 " + nick + " " + mode + \
 	" :Is unknown mode char to me for " + chan + "\r\n"
 
+#define ERR_PASSWDMISMATCH(nick) \
+	":c-irc.net 464 " + nick + " :Password incorrect\r\n"
+
 #define ERR_CHANOPRIVISNEEDED(nick, chan) \
 	":c-irc.net 482 " + nick + " " + chan + " :You're not channel operator\r\n"
 

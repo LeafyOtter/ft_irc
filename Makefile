@@ -19,6 +19,7 @@ SRCS_LIST = \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
 	commands/user/cap.cpp \
+	commands/user/oper.cpp \
 	commands/utils_cmd.cpp \
 	commands/miscs/mode.cpp \
 	commands/miscs/ping.cpp \
