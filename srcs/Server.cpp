@@ -309,9 +309,23 @@ namespace c_irc
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, \
+		chan_users_it_t first, chan_users_it_t last)
 	{
+		if (first == last)
+			return ;
 		c_irc::Message *msg = new c_irc::Message(users, first, last);
+		msg->set_message(payload);
+		buffer.push(msg);
+	}
+
+	void Server::queue_message(std::string payload, \
+		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	{
+		if (first == last)
+			return ;
+		c_irc::Message *msg = new c_irc::Message(users, first, last);
+		msg->set_sender(sender);
 		msg->set_message(payload);
 		buffer.push(msg);
 	}

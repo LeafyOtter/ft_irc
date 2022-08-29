@@ -59,7 +59,13 @@ namespace c_irc
 		void			execute_command(c_irc::Command &cmd, int fd);
 		void			init_commands();
 		void			queue_message(std::string msg, int fd);
-		void			queue_message(std::string msg, chan_users_it_t first, chan_users_it_t last);
+		void			queue_message(std::string msg, \
+										chan_users_it_t first, \
+										chan_users_it_t last);
+		void			queue_message(std::string msg, \
+										chan_users_it_t first, \
+										chan_users_it_t last,
+										chan_users_it_t sender);
 
 		std::string		get_password() const;
 
