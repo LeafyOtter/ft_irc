@@ -300,6 +300,7 @@ namespace c_irc
 		commands["OPER"] = &Server::cmd_oper;
 
 		commands["PRIVMSG"] = &Server::cmd_privmsg;
+		commands["NOTICE"] = &Server::cmd_notice;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
