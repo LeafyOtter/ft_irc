@@ -226,6 +226,7 @@ namespace c_irc
 							break ;
 						if (args.size() < current + 1)
 							return ;
+						current++;
 						new_fd = chan->fd_from_nick(args[current]);
 						if (new_fd == -1)
 						{
@@ -237,6 +238,7 @@ namespace c_irc
 							chan->set_user_mode(new_fd);
 						else
 							chan->unset_user_mode(new_fd);
+						LOG("New chanop : " << args[current]);
 						break ;
 
 				default:
