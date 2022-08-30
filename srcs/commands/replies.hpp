@@ -32,6 +32,12 @@
 #define RPL_PRIVMSG(nick, user, target, msg) \
 	":" + nick + "!" + user + "@c-irc.net PRIVMSG " + target + " :" + msg + "\r\n"
 
+#define RPL_ERROR \
+	":c-irc.net ERROR :Disconnect\r\n"
+
+#define RPL_NOTICE(nick, user, target, msg) \
+	":" + nick + "!" + user + "@c-irc.net NOTICE " + target + " :" + msg + "\r\n"
+
 #define RPL_CHAN_MODE(nick, user, channel, mode) \
 	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
 

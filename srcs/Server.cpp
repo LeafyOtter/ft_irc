@@ -242,7 +242,6 @@ namespace c_irc
 		serv_users_it_t it = users.find(fd);
 		delete (*it).second;
 		users.erase(it);
-		LOG("Index " << index << " removed from pollfds");
 		pollfds[index] = (pollfd){0, 0, 0};
 	}
 
@@ -301,6 +300,7 @@ namespace c_irc
 
 		commands["PRIVMSG"] = &Server::cmd_privmsg;
 		commands["NOTICE"] = &Server::cmd_notice;
+		commands["QUIT"] = &Server::cmd_quit;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
