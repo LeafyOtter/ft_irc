@@ -147,6 +147,7 @@ namespace c_irc
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
+			delete_empty_channels();
 			if (not buffer.empty() and buffer.front()->get_status()) {
 				delete buffer.front();
 				buffer.pop();
@@ -197,7 +198,10 @@ namespace c_irc
 				parse_message(buf, pollfds[i].fd);
 			}
 			if (pollfds[i].revents & POLLOUT)
+			{
 				send_message(buffer.front(), pollfds[i]);
+				check_user_quit();
+			}
 		}
 	}
 
@@ -233,6 +237,16 @@ namespace c_irc
 			LOG("Channel " + name + " not found");
 	}
 
+	void	Server::delete_user(int fd)
+	{
+		for (size_t i = 0; i < pollfds.size(); i++) {
+			if (pollfds[i].fd == fd) {
+				delete_user(i, fd);
+				return ;
+			}
+		}
+	}
+
 	void	Server::delete_user(int index, int fd)
 	{
 		LOG_USER(fd, "disconnected from server");
@@ -265,6 +279,8 @@ namespace c_irc
 			if (not cmd.get_cmd().empty())
 				std::cout << cmd;
 			execute_command(cmd, fd);
+			if (users.find(fd) == users.end())
+				return ;
 		}
 	}
 
@@ -341,5 +357,23 @@ namespace c_irc
 			if ((*it).second->get_user() == name)
 				return ((*it).first);
 		return (-1);
+	}
+
+	void Server::check_user_quit()
+	{
+		for (serv_users_it_t it = users.begin(); it != users.end(); it++)
+		{
+			if (it->second->is_delete())
+				delete_user(it->first);
+		}
+	}
+
+	void Server::delete_empty_channels()
+	{
+		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
+		{
+			if ((*it).second->is_empty())
+				delete_channel((*it).first);
+		}
 	}
 } // namespace c_irc

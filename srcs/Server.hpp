@@ -55,6 +55,7 @@ namespace c_irc
 		void			send_message(c_irc::Message *msg, pollfd &pfd);
 		void			create_channel(std::string name, int user);
 		void			delete_channel(std::string name);
+		void			delete_user(int fd);
 		void			delete_user(int index, int fd);
 
 		void			parse_message(std::string msg, int fd);
@@ -72,6 +73,9 @@ namespace c_irc
 		std::string		get_password() const;
 
 		int				is_user(std::string name);
+
+		void			check_user_quit();
+		void			delete_empty_channels();
 
 		/*
 		 * Commands
