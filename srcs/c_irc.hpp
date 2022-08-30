@@ -1,5 +1,11 @@
 #pragma once
 
+#define VERSION "version 0.0.1"
+#define AUTHOR "John Doe"
+#define GITHUB "https://github.com/LeafyOtter/ft_irc"
+
+#define MOTD_FILE "./motd_1.txt"
+
 #include <map>
 #include <queue>
 #include <set>

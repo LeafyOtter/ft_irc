@@ -116,6 +116,7 @@ namespace c_irc
 
 		init_commands();
 		creation_time = c_irc::get_time();
+		compilation_time = __TIMESTAMP__;
 	}
 
 	void	Server::start()
@@ -318,6 +319,10 @@ namespace c_irc
 		commands["NOTICE"] = &Server::cmd_notice;
 		commands["QUIT"] = &Server::cmd_quit;
 		commands["KILL"] = &Server::cmd_kill;
+
+		commands["INFO"] = &Server::cmd_info;
+		commands["MOTD"] = &Server::cmd_motd;
+		commands["VERSION"] = &Server::cmd_version;
 	}
 
 	void Server::queue_message(std::string payload, int fd)

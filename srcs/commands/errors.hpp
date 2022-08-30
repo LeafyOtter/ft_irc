@@ -16,6 +16,8 @@
 
 #define ERR_NOORIGIN(nick) \
 	":c-irc.net 421 " + nick + " :No origin specified\r\n"
+#define ERR_NOMOTD(nick) \
+	":c-irc.net 422 " + nick + " :MOTD File is missing\r\n"
 
 #define ERR_NONICKNAMEGIVEN(nick) \
 	":c-irc.net 431 " + nick + " :No nickname given\r\n"

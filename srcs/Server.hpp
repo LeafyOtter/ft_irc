@@ -35,6 +35,7 @@ namespace c_irc
 		// Logger		*log;
 
 		std::string		creation_time;
+		std::string		compilation_time;
 
 		public:
 

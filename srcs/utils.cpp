@@ -11,6 +11,7 @@ namespace c_irc
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
 		ret = asctime(timeinfo);
+		ret.erase(ret.end() - 1);	// Remove \n
 		return (ret);
 	}
 

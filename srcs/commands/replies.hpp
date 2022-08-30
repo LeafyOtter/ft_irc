@@ -2,8 +2,6 @@
 
 #include <string>
 
-#define VERSION "0.0.1"
-
 #define RPL_WELCOME(nick, username) \
 	":c-irc.net 001 " + nick + " :Welcome to the Internet Relay Network " \
 	+ nick + "!" + username + "@c-irc.net\r\n"
@@ -20,6 +18,22 @@
 
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
+
+#define RPL_VERSION(nick, server, version) \
+	":c-irc.net 351 " + nick + " " + version + ".42 :c-irc.net\r\n"
+
+#define RPL_INFO(nick, string) \
+	":c-irc.net 371 " + nick + " :" + string + "\r\n"
+#define RPL_MOTD(nick, line) \
+	":c-irc.net 372 " + nick + " :" + line + "\r\n"
+
+#define RPL_ENDOFINFO(nick) \
+	":c-irc.net 374 " + nick + " :End of INFO list\r\n"
+
+#define RPL_MOTDSTART(nick) \
+	":c-irc.net 375 " + nick + " :- c-irc.net Message of the day -\r\n"
+#define RPL_ENDOFMOTD(nick) \
+	":c-irc.net 376 " + nick + " :End of MOTD command\r\n"
 
 #define RPL_YOUREOPER(nick) \
 	":c-irc.net 381 " + nick + " :You are now an IRC operator\r\n"
