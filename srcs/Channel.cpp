@@ -45,6 +45,8 @@ namespace c_irc
 		chan_users[fd] &= ~new_mode;
 	}
 
+	bool Channel::is_mode(uint16_t mode) const { return (this->mode & mode); }
+
 	void Channel::set_user_mode(int fd) { chan_users[fd] = true; }
 	void Channel::unset_user_mode(int fd) { chan_users[fd] = false; }
 	bool Channel::is_user_op(int fd) { return (chan_users[fd]);}
