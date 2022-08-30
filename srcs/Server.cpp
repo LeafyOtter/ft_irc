@@ -242,7 +242,8 @@ namespace c_irc
 		serv_users_it_t it = users.find(fd);
 		delete (*it).second;
 		users.erase(it);
-		pollfds.erase(pollfds.begin() + index);
+		LOG("Index " << index << " removed from pollfds");
+		pollfds[index] = (pollfd){0, 0, 0};
 	}
 
 	void	Server::parse_message(std::string msg, int fd)
