@@ -41,6 +41,9 @@
 #define RPL_TIME(nick, time) \
 	":c-irc.net 391 " + nick + " :" + time + "\r\n"
 
+#define RPL_NICK(nick, user, new_nick) \
+	":" + nick + "!" + user + "@c-irc.net NICK :" + new_nick + "\r\n"
+
 #define RPL_PONG ":c-irc.net PONG c-irc.net\r\n"
 
 #define RPL_PRIVMSG(nick, user, target, msg) \
