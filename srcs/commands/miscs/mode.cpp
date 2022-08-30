@@ -113,6 +113,8 @@ namespace c_irc
 			ret += "l";
 		if (flag & C_MODE_NO_EXTERNAL)
 			ret += "n";
+		if (flag & C_MODE_PRIVATE)
+			ret += "p";
 		if (flag & C_MODE_SECRET)
 			ret += "s";
 		if (flag & C_MODE_TOPIC_LOCK)
@@ -209,6 +211,10 @@ namespace c_irc
 
 					case 'n':
 						c_set_unset(*chan, C_MODE_NO_EXTERNAL, type);
+						break ;
+
+					case 'p':
+						c_set_unset(*chan, C_MODE_PRIVATE, type);
 						break ;
 
 					case 't':

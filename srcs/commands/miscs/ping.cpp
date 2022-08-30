@@ -10,7 +10,7 @@ namespace c_irc
 	void	Server::cmd_ping(int fd, arguments_t &args)
 	{
 		LOG_USER(fd, "sent PING command. Sending PONG.");
-		if (args.size() < 0)
+		if (args.size() == 0)
 		{
 			queue_message(ERR_NOORIGIN(users[fd]->get_nick()), fd);
 			return ;

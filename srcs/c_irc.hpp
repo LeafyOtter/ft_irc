@@ -32,6 +32,7 @@
 #define C_MODE_SECRET			0x0008	// s : secret channel
 #define C_MODE_TOPIC_LOCK		0x0010	// t : topic locked (can still be changed by op)
 #define C_MODE_NO_EXTERNAL		0x0020	// n : no external messages
+#define C_MODE_PRIVATE			0x0040	// p : private channel
 
 // Colors
 #define COLOR_BLACK				"\x1b[30m"
