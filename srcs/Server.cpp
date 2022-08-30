@@ -189,7 +189,7 @@ namespace c_irc
 				n--;
 			if (pollfds[i].revents & POLLIN) {
 				std::fill(buf, buf + sizeof(buf), 0);
-				int rc = recv(pollfds[i].fd, buf, sizeof(buf), 0);
+				int rc = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
 				if (!rc) {
 					delete_user(i, pollfds[i].fd);
 					continue ;
