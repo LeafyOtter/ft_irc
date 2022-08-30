@@ -317,6 +317,7 @@ namespace c_irc
 		commands["PRIVMSG"] = &Server::cmd_privmsg;
 		commands["NOTICE"] = &Server::cmd_notice;
 		commands["QUIT"] = &Server::cmd_quit;
+		commands["KILL"] = &Server::cmd_kill;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
@@ -352,9 +353,6 @@ namespace c_irc
 	{
 		for (serv_users_it_t it = users.begin(); it != users.end(); it++)
 			if ((*it).second->get_nick() == name)
-				return ((*it).first);
-		for (serv_users_it_t it = users.begin(); it != users.end(); it++)
-			if ((*it).second->get_user() == name)
 				return ((*it).first);
 		return (-1);
 	}

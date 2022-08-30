@@ -41,6 +41,9 @@
 #define RPL_CHAN_MODE(nick, user, channel, mode) \
 	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
 
+#define RPL_KILL(nick, user, victim, reason) \
+	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " :" + reason + "\r\n"
+
 // :otter!otter_0x2e3@ircserv.42 MODE otter +i
 //001    RPL_WELCOME
 //       "Welcome to the Internet Relay Network

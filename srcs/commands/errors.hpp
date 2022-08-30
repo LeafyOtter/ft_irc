@@ -1,7 +1,7 @@
 #pragma once
 
 #define ERR_NOSUCHNICK(nick, target) \
-	":c-irc.net 401 " + nick + " " + target + " :No such nick/channel"
+	":c-irc.net 401 " + nick + " " + target + " :No such nick/channel\r\n"
 #define ERR_NOSUCHSERVER(nick, serv) \
 	":c-irc.net 402 " + nick + " " + serv + " :No such server\r\n"
 #define ERR_NOSUCHCHANNEL(nick, chan) \
@@ -41,8 +41,12 @@
 #define ERR_PASSWDMISMATCH(nick) \
 	":c-irc.net 464 " + nick + " :Password incorrect\r\n"
 
+#define ERR_NOPRIVILEGES(nick) \
+	":c-irc.net 481 " + nick + " :Permission Denied- You're not an IRC operator\r\n"
 #define ERR_CHANOPRIVISNEEDED(nick, chan) \
 	":c-irc.net 482 " + nick + " " + chan + " :You're not channel operator\r\n"
+#define ERR_CANTKILLSERVER(nick) \
+	":c-irc.net 483 " + nick + " :You can't kill a server!\r\n"
 
 #define ERR_UMODEUNKNOWNFLAG(nick) \
 	":c-irc.net 501 " + nick + " :Unknown MODE flag\r\n"
