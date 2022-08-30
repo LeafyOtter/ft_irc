@@ -75,6 +75,8 @@ namespace c_irc
 
 		int				fd_from_nick(std::string new_nick);
 
+		bool			is_empty() const;
+
 		chan_users_it_t		begin();
 		chan_users_it_t		end();
 

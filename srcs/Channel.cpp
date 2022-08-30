@@ -140,6 +140,8 @@ namespace c_irc
 		return (-1);
 	}
 
+	bool Channel::is_empty() const { return (chan_users.empty()); }
+
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }
 
