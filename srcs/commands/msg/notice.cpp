@@ -10,7 +10,7 @@ namespace c_irc
 	void Server::cmd_notice(int fd, arguments_t &args)
 	{
 		c_irc::User *user = users[fd];
-		std::string cmd = "PRIVMSG";
+		std::string cmd = "NOTICE";
 		std::string nick = user->get_nick();
 		std::string	chan_identifiers = "&#+!";
 
@@ -45,7 +45,7 @@ namespace c_irc
 				return ;
 			}
 
-			std::string msg = RPL_PRIVMSG(nick, user->get_user(), name, args[1]);
+			std::string msg = RPL_NOTICE(nick, user->get_user(), name, args[1]);
 			queue_message(msg, chan->begin(), chan->end(), chan->get_user(fd));
 			return ;
 		}
@@ -60,7 +60,7 @@ namespace c_irc
 				return ;
 			}
 			
-			std::string msg = RPL_PRIVMSG(nick, user->get_user(), name, args[1]);
+			std::string msg = RPL_NOTICE(nick, user->get_user(), name, args[1]);
 			queue_message(msg, fd_target);
 		}
 	}
