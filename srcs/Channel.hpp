@@ -53,6 +53,7 @@ namespace c_irc
 
 		void			set_user_mode(int fd, uint16_t new_mode);
 		void			unset_user_mode(int fd, uint16_t new_mode);
+		bool			is_mode(uint16_t mode) const;
 
 		void			set_user_mode(int fd);
 		void			unset_user_mode(int fd);

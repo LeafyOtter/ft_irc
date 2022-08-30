@@ -23,7 +23,8 @@ SRCS_LIST = \
 	commands/utils_cmd.cpp \
 	commands/miscs/mode.cpp \
 	commands/miscs/ping.cpp \
-	commands/miscs/time.cpp
+	commands/miscs/time.cpp \
+	commands/msg/privmsg.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs
