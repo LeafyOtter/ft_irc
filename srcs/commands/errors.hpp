@@ -1,10 +1,18 @@
 #pragma once
 
+#define ERR_NOSUCHNICK(nick, target) \
+	":c-irc.net 401 " + nick + " " + target + " :No such nick/channel"
 #define ERR_NOSUCHSERVER(nick, serv) \
-	":c-irc.net 401 " + nick + " " + serv + " :No such server\r\n"
-
+	":c-irc.net 402 " + nick + " " + serv + " :No such server\r\n"
 #define ERR_NOSUCHCHANNEL(nick, chan) \
 	":c-irc.net 403 " + nick + " " + chan + " :No such channel\r\n"
+#define ERR_CANNOTSENDTOCHAN(nick, chan) \
+	":c-irc.net 404 " + nick + " " + chan + " :Cannot send to channel\r\n"
+
+#define ERR_NORECIPIENT(nick, cmd) \
+	":c-irc.net 411 " + nick + " " + cmd + " :No recipient given\r\n"
+#define ERR_NOTEXTTOSEND(nick) \
+	":c-irc.net 412 " + nick + " :No text to send\r\n"
 
 #define ERR_NOORIGIN(nick) \
 	":c-irc.net 421 " + nick + " :No origin specified\r\n"
