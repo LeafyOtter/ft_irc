@@ -71,6 +71,8 @@ namespace c_irc
 
 		std::string		get_password() const;
 
+		int				is_user(std::string name);
+
 		/*
 		 * Commands
 		 */
