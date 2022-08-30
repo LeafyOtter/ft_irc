@@ -4,7 +4,7 @@
 #define AUTHOR "John Doe"
 #define GITHUB "https://github.com/LeafyOtter/ft_irc"
 
-#define MOTD_FILE "./motd_1.txt"
+#define MOTD_FILE "./motd/motd_1.txt"
 
 #include <map>
 #include <queue>
