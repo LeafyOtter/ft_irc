@@ -5,7 +5,7 @@
 
 namespace c_irc
 {  
-    void split(std::string str, char c, std::vector<std::string> &elements)
+    inline void split(std::string str, char c, std::vector<std::string> &elements) // verif si c'est un soucis de mettre inline // sinon probleme de duplicate symbole
 	{
 		std::string str2;
 		size_t pos = 0;
@@ -16,7 +16,6 @@ namespace c_irc
 			str2 = str.substr(0, pos);
 			str = str.substr(pos + 1);
 			elements.push_back(str2);
-			std::cout << str2 << std::endl;
 		}
 	}
 }

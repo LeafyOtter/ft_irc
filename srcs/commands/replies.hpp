@@ -18,14 +18,18 @@
 	":c-irc.net 301 " + nick + " :" + message + "\r\n"
 #define RPL_LIST(chan, count, topic) \
 	":c-irc.net 322 " + chan + " " + count +  " :" + topic + "\r\n"
-//#define RPL_LISTEND(cmd_list) \
-//	":c-irc.net 323 :End of /LIST \r\n"
+#define RPL_LISTEND(nick) \
+	":c-irc.net 323 " + nick + " :End of /LIST \r\n"
 #define RPL_NOTOPIC(chan) \
 	":c-irc.net 331 " + chan + " :No topic is set\r\n"
 #define RPL_TOPIC(chan, topic) \
 	":c-irc.net 332 " + chan + " :" + topic + "\r\n"
 #define RPL_INVITING(nick, chan) \
 	":c-irc.net 341 " + nick + " " + chan + "\r\n"
+#define RPL_NAMREPLY(nick_type, nick, chan_type, chan) \
+	":c-irc.net 353 " + chan_type + chan +  " :" + nick_type + nick + "\r\n"	
+#define RPL_ENDOFNAMES(nick, chan) \
+	":c-irc.net 366 " + nick + " " + chan + " :End of /NAMES list\r\n"
 
 //001    RPL_WELCOME
 //       "Welcome to the Internet Relay Network

@@ -56,7 +56,8 @@ namespace c_irc
 			queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
 			return ;
 		}
-                // verifier que l'user a le droit de bannir ERR_CHANOPRIVSNEEDED + si il est sur le channel concerné ? ERR_NOTONCHANNEL
+                
+                // verifier que l'user a le droit de sortir ERR_CHANOPRIVSNEEDED + si il est sur le channel concerné ? ERR_NOTONCHANNEL
                 // prend l'args 0, le split et verifier que les channels existent sinon nosuchchannel ?
                 // si oui -> virer les args 1, 1 par un et verifier si il ils etaient bien sur le channel sinon ERR_USERNOTINCHANNEL
                 // regarde si il y a dautre channel dans vector et banuser()

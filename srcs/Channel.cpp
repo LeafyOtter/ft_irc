@@ -28,6 +28,7 @@ namespace c_irc
 	std::string Channel::get_key() const { return (key); }
 	uint16_t Channel::get_mode() const { return (mode); }
 	uint16_t Channel::get_limit() const { return (limit); }
+	size_t	Channel::get_number_of_users() const { return chan_users.size();}
 
 	void Channel::set_topic(std::string new_topic) { topic = new_topic; }
 	void Channel::set_key(std::string new_key) { key = new_key; }
@@ -54,7 +55,7 @@ namespace c_irc
 		chan_users.erase(id);
 	}
 
-	void Channel::ban_user(std::string new_user)
+	/*void Channel::ban_user(std::string new_user)
 	{
 		ban_list.push_back(new_user);
 	}
@@ -68,7 +69,7 @@ namespace c_irc
 				return ;
 			}
 		}
-	}
+	}*/
 
 	void Channel::invite_user(std::string new_user)
 	{
@@ -124,6 +125,8 @@ namespace c_irc
 				return (true);
 		return (false);
 	}
+
+	bool  Channel::is_mode(uint16_t fl) { return (mode & fl); }
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }

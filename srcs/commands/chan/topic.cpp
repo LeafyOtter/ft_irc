@@ -2,6 +2,7 @@
 #include "../errors.hpp"
 #include "../replies.hpp"
 #include <string.h>
+#include <iostream>
 
 /*
 
@@ -13,9 +14,8 @@
 
         A FAIRE :
                 - verif l'erreur nochanmode
-                - :WiZ!jto@tolsun.oulu.fi TOPIC #test :New topic ; User Wiz setting the topic.
                 - verifier le droit user avant de modifier le topic
-                - reduir la fonctions
+                - reduir la fonctions ?
         A VERIFIER : 
                 - si le topic est vide de base, peut on quand meme le modifier -> If the <topic> parameter is present, the topic for that
                 channel will be changed + If the <topic> parameter is an empty string, the topic for that channel will be removed. (?? bool +  string pour topic)
@@ -57,26 +57,13 @@ namespace c_irc
                         else
                                 queue_message(RPL_TOPIC(args[0], topic), fd);  
                 }
-                if (args.size() > 1) 
+                if (args[1].empty())
+                        channels[args[0]]->set_topic(std::string()); 
+                else 
                 {
-                        //if(not channels[args[0]]->is_user_in_channel(nick))  --> NON verifier l'user a les droits
-                        //{
-                        //        queue_message(ERR_NOTONCHANNEL(args[0]), fd);   
-                        //        return;
-                        //}
-                        if (pos = args[1].find(':') != 0)
-                                return; 
-                        if (args[1].size() == 1)
-                        {
-                                channels[args[0]]->set_topic(std::string()); 
-                                return; 
-                        }
-                        else 
-                        {
-                                for (size_t i = 1; i < args.size(); i++)
-                                        topic = topic + args[i]; 
-                        }
+                        for (size_t i = 1; i < args.size(); i++)
+                                topic = topic + args[i]; 
                         channels[args[0]]->set_topic(topic);
-                }
-	}
-} 
+                } 
+        }    
+}

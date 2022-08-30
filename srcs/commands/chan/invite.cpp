@@ -23,15 +23,13 @@
    source of trouble for users.)
 
 A VERIF :
-        - utilisation de NOTONCHANNEL (seul les membre peuvent inviter) // diff avec CHANOPRIVSNEEDED ? (si mode -i activé et operateur non membre de chan ?)
         - NOSUCHCHANNEL n'est pas dans les erreurs alors que le canal doit forcement exister pour pouvoir inviter un user
-        - mode +i 
    Numeric Replies:
 
            **ERR_NEEDMOREPARAMS             **ERR_NOSUCHNICK
            *ERR_NOTONCHANNEL                **ERR_USERONCHANNEL
            **ERR_CHANOPRIVSNEEDED
-           **RPL_INVITING                   **RPL_AWAY
+           **RPL_INVITING                   *RPL_AWAY (a voir si on utilise)
 
    Examples:
 
@@ -53,6 +51,7 @@ namespace c_irc
 		c_irc::User &user = *users[fd];
                 std::string name = "INVITE";
                 std::string nick = user.get_nick();
+                //int pos; 
                 if (not user.is_mode(U_MODE_REGISTERED_PASS))
 			return ;
                 if (args.empty())
@@ -60,10 +59,30 @@ namespace c_irc
 			queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
 			return ;
 		}
-                //args[0] --> qui / user_name /  verif si exist NOSUCHNICK / verif si utilisateur absent (RPL_AWAY)
-                //args[1] --> quel chan / find / verif si user deja sur channel USERONCHANNEL // verif si le droit d'inviter ERR_CHANOPRIVSNEEDED
-
-                //si ok -> invite_user() + RPL_INVITING
-
+                if (args.size() < 1)
+                        return;
+                //if (args[0] != utilisateur existant)                                          // invité inconnu 
+                //{
+                //        queue_message(ERR_NOSUCHNICK(args[0], "nick"), fd); 
+                //}     
+                //  if (user mode = absent)                                                     // a verif, ou recuperer l'info 
+                //         RPL_AWAY
+                //if (!(channels.find(args[1]) != channels.end()))                              // channel non trouvé --> pas d'erreur ? 
+                //        return; 
+                //if (channels[args[1]]->is_user_in_channel(args[0]))                           // invité deja dans le channel 
+                //{
+                //        queue_message(ERR_USERONCHANNEL(args[0], args[1]), fd); 
+                //        return; 
+                //}
+                //if (user n'est pas dans le channel)                                           // utilisateur n'est pas dans le channel
+                //{
+                //        queue_message(ERR_NOTONCHANNEL(args[1]), fd); 
+                //}
+                //if (user n'a pas les droit)                                                   // utilisateur n'yant pas les droit d'inviter 
+                //{
+                //        queue_message(CHANOPROVSNEEDED(args[1]), fd); 
+                //        return
+                //}
+                queue_message(RPL_INVITING(args[0], args[1]), fd); 
 	}
 } 

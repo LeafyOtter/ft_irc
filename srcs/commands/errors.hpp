@@ -1,10 +1,14 @@
 #pragma once
 
-#define ERR_NOSUCHCHANNEL(serv) \
-	":c-irc.net 402 " + serv + " :No such server\r\n"
+
+
+#define ERR_NOSUCHNICK(nick, type) \
+	":c-irc.net 401 " + nick + " :No such " + type + "\r\n"
+//#define ERR_NOSUCHSERVER(serv) \
+//	":c-irc.net 402 " + serv + " :No such server\r\n"
 #define ERR_NOSUCHCHANNEL(chan) \
 	":c-irc.net 403 " + chan + " :No such channel\r\n"
-#define ERR_NOSUCHCHANNEL(chan) \
+#define ERR_TOOMANYCHANNEL(chan) \
 	":c-irc.net 405 " + chan + " :You have joined too many channels\r\n"
 #define ERR_NONICKNAMEGIVEN(nick) \
 	":c-irc.net 431 " + nick + " :No nickname given\r\n"
@@ -12,9 +16,9 @@
 	":c-irc.net 432 " + nick + " " + n + " :Erroneous nickname\r\n"
 #define ERR_NICKNAMEINUSE(nick, n) \
 	":c-irc.net 433 " + nick + " " + n + " :Nickname is already in use\r\n"
-//#define ERR_UNAVAILRESSOURCE() \
-	error 437 "<nick/channel> :Nick/channel is temporarily unavailable" (pour nick et pour channel)
-#define USERNOTINCHANNEL(nick, chan) \
+//#define ERR_UNAVAILRESSOURCE() 
+//	error 437 "<nick/channel> :Nick/channel is temporarily unavailable" (pour nick et pour channel)
+#define ERR_USERNOTINCHANNEL(nick, chan) \
 	":c-irc.net 441 " + nick + " " + chan + " :They aren't on that channel\r\n"
 #define ERR_NOTONCHANNEL(chan) \
 	":c-irc.net 442 " + chan + " :You're not on that channel\r\n"

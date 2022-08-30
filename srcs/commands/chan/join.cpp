@@ -21,10 +21,8 @@
 				key  =  1*23( %x01-05 / %x07-08 / %x0C / %x0E-1F / %x21-7F )
                   		; any 7-bit US_ASCII character,
                   		; except NUL, CR, LF, FF, h/v TABs, and " "
-			- erreur entrer channel inviteonly
 			- verifier si channel full
-			- verifier si la cle est la bonne / envoi de la cle sur un chan avec cle qui existe deja -> cle incorrect ou non fournie
-			- verifier si user banni
+			- utilisateur banni -> a ne pas mettre
 			- envoyer un message quand channel join (RPL_TOPIC)
 
 
@@ -63,7 +61,7 @@
            	*ERR_INVITEONLYCHAN             **ERR_BADCHANNELKEY
            	**ERR_CHANNELISFULL             **ERR_BADCHANMASK
            	*ERR_NOSUCHCHANNEL             	**ERR_TOOMANYCHANNELS
-           	ERR_TOOMANYTARGETS (a verif) 			ERR_UNAVAILRESOURCE (a verif)
+           	ERR_TOOMANYTARGETS (a verif) 	ERR_UNAVAILRESOURCE (a verif)
            	
 			*RPL_TOPIC
 */
@@ -88,6 +86,7 @@ namespace c_irc
 
 	bool Server::channel_autorization(std::string element, int fd, std::string key)
 	{
+			int pos; 
 			if (not is_name_valid(element))
 			{
 				queue_message(ERR_BADCHANMASK(element),fd); // nom invalide != channel inexistant
@@ -97,17 +96,31 @@ namespace c_irc
 			//{
 			//	return 0; // a verif car erreur non mentionnee : ERR_INVALIDKEY (dans channel ?)
 			//}
-			// verifier si l'user a trop de chan ERR_TOOMANYCHANNELS 
-				// return 0
+			
+			//if (verifier si l'user a trop de chan)
+			//{
+			//	queue_message(ERR_TOOMANYCHANNELS(element), fd);  
+			//	 return 0;
+			//}
 			if (channels.find(element) != channels.end()) 
 			{
-        		std::cout << "channel exist" << std::endl; // a supprimer
-				// verifier que la cle est bonne - ERR_BADCHANNELKEY
-				//	verif chan en invite only,  ERR_INVITEONLYCHAN (mode ?)
-					// return 0
-				//  si channel plein --> ERR_CHANNELISFULL  	/ limite
-				//	si l'utilisateur est banni ERR_BANNEDFROMCHAN / is_user_ban
-						// 	- envoyer le message RPL_TOPIC quand on rejoint un channel (user simple et operateur different ?)
+				if (channels[element]->get_key() != key)
+				{
+					queue_message(ERR_BADCHANNELKEY(element),fd); 
+					return 0;
+				}
+				if(channels[element]->is_mode(INVITE_ONLY))
+				{
+					queue_message(ERR_INVITEONLYCHAN (element),fd); 
+					return 0;
+				}
+				//if si channel plein / limite
+				//{ 
+				//	queue_message(ERR_CHANNELISFULL(element),fd); 
+				//	return 0 
+				//} 
+			
+				//envoyer le message RPL_TOPIC quand on rejoint un channel (user simple et operateur different ?)
 				channels[element]->add_user(fd);
 				return (0); 
 			}
@@ -133,12 +146,11 @@ namespace c_irc
 				if (i >= key.size())
 					key = key_tab[i]; 
 			}	
-			if (channel_autorization(chan_name, fd, key))
+			if (channel_autorization(chan_name, fd, key))   // ok channel inexistant a creer 
 			{
 				create_channel(chan_name, fd, key);
 				// ajouter que l'user est en mode operator ?
-				//envoi un message (voir message operateur et user simple)				
-				std::cout << "channel don't exist" << std::endl; // a supprimer
+				//envoi un message pour confir;er (voir message operateur et user simple)				
 			}
 		}
 	}
@@ -161,7 +173,7 @@ namespace c_irc
 		}
 		if (args[0] == "0")
 		{
-			// remove user ou voir PART pour chaque channel
+			// iteration sur channels et verif si l'user y est pour le supprimer usser.move()
 			return; 
 		}
 		//- gerer si l'utilisateur est sur trop de chan  ERR_TOOMANYCHANNELS

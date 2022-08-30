@@ -12,61 +12,54 @@
    Parameters: [ <channel> *( "," <channel> ) [ <target> ] ]
 
    A FAIRE :
-                - utiliser des iterateurs ou faire fonction dans channel pour compter le nombre d'users dans le channel --> apprendre ces putains d'itérateurs
-                - trouver une autre solution pour convertir en string sans C++11
-                - lister les chan demandé (apres avoir trouvé la fonction pour compter)
-                - changer la fonction print channel_List
-                
-   
+                - trouver une autre solution pour convertir en string sans C++11 
+                   
    A VERIF :
-                - If the <target> parameter is specified, the request is forwarded to
-                that server which will generate the reply.
-
-                - Wildcards are allowed in the <target> parameter.
-                - si le channel 2 n'existe, est ce qu'on affiche le channel 3 (oui)
-                - quand utiliser RPL_LISTEND et ERR_NOSUCHSERVER
-
+                - quand utiliser ERR_NOSUCHSERVER (multiserver ?)
+                
    Numeric Replies:
 
-           ERR_TOOMANYMATCHES (a verif)         *ERR_NOSUCHSERVER
-           **RPL_LIST                           *RPL_LISTEND
+           ERR_TOOMANYMATCHES (a verif)         *ERR_NOSUCHSERVER (pour les tagets) ??
+           **RPL_LIST                           **RPL_LISTEND
 
 
 */
 
 namespace c_irc
 {
-        void Server::print_channel_List(c_irc::Channel &chan, int nb)
+        void Server::print_channel_list(Channel *chan, int fd, std::string nick)
         {
-                std::string chan_name = chan.get_name();  
-                std::string topic = chan.get_topic();
-                std::string count;  
+                std::string name = chan->get_name();  
+                std::string topic = chan->get_topic();
+                size_t count = chan->get_number_of_users();  
+                std::string count_users; 
         
-                // trouver une autre solution
+                
+                // trouver une autre solution pour passer en string 
                 std::stringstream num;
-                num << nb;
-                count = num.str();
-                queue_message(RPL_LIST(chan_name, count, topic), fd);
-        }    
+                num << count;
+                count_users = num.str();
+
+                if (chan->is_mode(C_CHAN_PROTECTED)) && !(chan->is_user_in_channel(nick)))         // RFC 1459
+                        queue_message(RPL_LIST(name, count_users, "channel \"Prv\""), fd);
+                else          
+                        queue_message(RPL_LIST(name, count_users, topic), fd);
+        }       
         
         void Server::cmd_list(int fd, arguments_t &args)
 	{
 	        c_irc::User &user = *users[fd];
-                int count = 0; 
+                std::map<std::string, c_irc::Channel *>::iterator it; 
+                std::string nick;
+
+		nick = user.get_nick();
                 if (not user.is_mode(U_MODE_REGISTERED_PASS))
 		        return ;
 		if (args.size() == 0) 
                 {
-                        std::cout << COLOR_CYAN << std::endl << "***** CHANNEL LIST ******" << COLOR_RESET << std::endl; // a supprimer
-                        
-                        // RETIRER CE PUTAIN DE TRUC IMMONDE --> En plus erreur compté le mb de channel et non le nombre d'user dans le channel
-                        for ( channels_t::const_iterator it = channels.begin(); it != channels.end(); it++ ) 
-                                count = count + 1; 
-                        for ( channels_t::const_iterator it = channels.begin(); it != channels.end(); it++ ) 
-                        {        //std::cout << it->first << std::endl; // utiliser RPL_LIST
-                                c_irc::Channel &chan = *channels[it->first];
-                                print_channel_List(chan, count); 
-                        }
+                        for (it = channels.begin(); it != channels.end(); it++ ) 
+                                if (! (it->second->is_mode(C_MODE_SECRET)) || it->second->is_user_in_channel(nick))  // RFC 1459
+                                        print_channel_list(it->second, fd, nick); 
                 }
                 if (args.size() > 0)
                 {
@@ -74,13 +67,11 @@ namespace c_irc
                                 split(args[0], ',', element); 
                         for(size_t i = 0; i < element.size(); i++)
                         {
-                                if (channels.find(element[i]) != channels.end()) 
-                                {
-                                        count = 0; // ici compter le nombre d'Users dans le channel
-                                        //print_channel_List(channels[element[i]], count);   // n'inporte quoi
-                                }  
-                                      
+                                if ((it = channels.find(element[i])) != channels.end()) 
+                                        if (! (it->second->is_mode(C_MODE_SECRET)) || it->second->is_user_in_channel(nick)) 
+                                                print_channel_list(it->second, fd, nick);          
 			}
                 }
+                queue_message(RPL_LISTEND(nick), fd); 
 	}
- }
+}

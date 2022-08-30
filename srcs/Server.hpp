@@ -100,10 +100,12 @@ namespace c_irc
 		 * cmd_utils
 		 */
 
-		void			print_channel_List(c_irc::Channel &chan, int count);
+		void			print_channel_list(Channel *chan, int fd, std::string nick);
+		void			print_users_list(Channel *chan, int fd, std::string nick); 
 		void			parse_cmd_join(arguments_t &args, int fd, std::string chan_name); 
 		
 		bool			channel_autorization(std::string element, int fd, std::string key); 
+
 
 	};
 } // namespace c_irc

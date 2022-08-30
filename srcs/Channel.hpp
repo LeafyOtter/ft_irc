@@ -45,6 +45,7 @@ namespace c_irc
 		std::string		get_key() const;
 		uint16_t		get_mode() const;
 		uint16_t		get_limit() const;
+		size_t			get_number_of_users() const; 				
 
 		void			set_topic(std::string new_topic);
 		void			set_key(std::string new_key);
@@ -67,6 +68,7 @@ namespace c_irc
 		bool			is_user_banned(std::string new_user);
 		bool			is_user_invited(std::string new_user);
 		bool			is_user_in_channel(std::string new_user);
+		bool  			is_mode(uint16_t fl);
  
 		chan_users_it_t		begin();
 		chan_users_it_t		end();
