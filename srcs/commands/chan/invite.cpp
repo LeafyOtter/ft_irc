@@ -92,9 +92,7 @@ namespace c_irc
 			return ;
 		}
 
-		if (channels.find(args[1]) == channels.end())
-			;
-		else
+		if (channels.find(args[1]) != channels.end())
 		{
 			c_irc::Channel &channel = *channels[args[1]];
 

@@ -20,7 +20,7 @@ namespace c_irc
 
 		std::string		name;
 
-		int				fd;
+		int				server_fd;
 
 		uint16_t		port;
 		std::string		password;

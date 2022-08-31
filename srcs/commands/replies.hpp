@@ -19,8 +19,8 @@
 #define RPL_AWAY(nick, message) \
 	":c-irc.net 301 " + nick + " :" + message + "\r\n"
 
-#define RPL_LIST(chan, count, topic) \
-	":c-irc.net 322 " + chan + " " + count +  " :" + topic + "\r\n"
+#define RPL_LIST(nick, chan, count, topic) \
+	":c-irc.net 322 " + nick + " " + chan + " " + count +  " :" + topic + "\r\n"
 #define RPL_LISTEND(nick) \
 	":c-irc.net 323 " + nick + " :End of /LIST \r\n"
 #define RPL_CHANNELMODEIS(nick, chan, mode) \

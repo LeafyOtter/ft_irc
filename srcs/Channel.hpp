@@ -73,6 +73,7 @@ namespace c_irc
 		//bool			is_name_valid(std::string new_name);
 		bool			is_user_banned(std::string new_user);
 		bool			is_user_invited(std::string new_user);
+		bool			is_user_in_channel(int fd);
 		bool			is_user_in_channel(std::string new_user);
 		bool			is_mode(uint16_t fl);
 

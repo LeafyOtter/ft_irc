@@ -49,7 +49,7 @@ namespace c_irc
 			delete buffer.front();
 			buffer.pop();
 		}
-		close(fd);
+		close(server_fd);
 	}
 
 	void	Server::initialize(	std::string new_name,
@@ -66,13 +66,13 @@ namespace c_irc
 		 *	Socket creation
 		 */
 
-		fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd == -1)
+		server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_fd == -1)
 			throw std::runtime_error("socket() failed to open");
 
 		LOG("Socket created");
 
-		fcntl(fd, F_SETFL, O_NONBLOCK);
+		fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
 		/*
 		 *	Socket binding
@@ -84,9 +84,9 @@ namespace c_irc
 		server_addr.sin_port = port;
 		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		
-		rc = bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+		rc = bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("bind() failed to open");
 		}
 
@@ -96,15 +96,15 @@ namespace c_irc
 		 *	Listening socket
 		 */
 
-		rc = listen(fd, 42);
+		rc = listen(server_fd, 42);
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("listen() failed to open");
 		}
 
 		pollfd pfd;
 
-		pfd.fd = fd;
+		pfd.fd = server_fd;
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 
@@ -141,7 +141,7 @@ namespace c_irc
 			if (rc == -1) {
 				if (errno == EINTR)
 					break ;
-				close(fd);
+				close(server_fd);
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
 			}
 			if (pollfds[0].revents == POLLIN) // new connection to server waiting
@@ -161,9 +161,9 @@ namespace c_irc
 		struct sockaddr_in user_addr;
 		socklen_t user_addr_len = sizeof(user_addr);
 		int user_fd;
-		user_fd = accept(fd, (struct sockaddr *)&user_addr, &user_addr_len);
+		user_fd = accept(server_fd, (struct sockaddr *)&user_addr, &user_addr_len);
 		if (user_fd == -1) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("accept() failed to open");
 		}
 		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) \

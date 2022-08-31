@@ -264,6 +264,9 @@ namespace c_irc
 				return ;
 			}
 
+			if (chan->is_user_in_channel(nick))
+				continue ;
+
 			chan->add_user(fd);
 			queue_message(RPL_JOIN(nick, user.get_user(), chan_name), \
 				chan->begin(), chan->end(), chan->get_user(fd));

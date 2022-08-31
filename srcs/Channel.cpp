@@ -125,6 +125,11 @@ namespace c_irc
 		return (false);
 	}
 
+	bool Channel::is_user_in_channel(int fd)
+	{
+		return (chan_users.find(fd) != chan_users.end());
+	}
+
 	bool Channel::is_user_in_channel(std::string new_user)
 	{
 		for (chan_users_it_t it = begin(); it != end(); ++it)
