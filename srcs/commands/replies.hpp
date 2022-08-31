@@ -71,6 +71,9 @@
 
 #define RPL_PONG ":c-irc.net PONG c-irc.net\r\n"
 
+#define RPL_JOIN(nick, user, chan) \
+	":" + nick + "!" + user + "@c-irc.net JOIN " + chan + "\r\n"
+
 #define RPL_PRIVMSG(nick, user, target, msg) \
 	":" + nick + "!" + user + "@c-irc.net PRIVMSG " + target + " :" + msg + "\r\n"
 
