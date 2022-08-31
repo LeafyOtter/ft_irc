@@ -61,7 +61,7 @@
 
 #define ERR_NOPRIVILEGES(nick) \
 	":c-irc.net 481 " + nick + " :Permission Denied- You're not an IRC operator\r\n"
-#define ERR_CHANOPRIVISNEEDED(nick, chan) \
+#define ERR_CHANOPRIVSNEEDED(nick, chan) \
 	":c-irc.net 482 " + nick + " " + chan + " :You're not channel operator\r\n"
 #define ERR_CANTKILLSERVER(nick) \
 	":c-irc.net 483 " + nick + " :You can't kill a server!\r\n"

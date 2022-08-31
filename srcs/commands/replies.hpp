@@ -31,8 +31,8 @@
 #define RPL_TOPIC(chan, topic) \
 	":c-irc.net 332 " + chan + " :" + topic + "\r\n"
 
-#define RPL_INVITING(nick, chan) \
-	":c-irc.net 341 " + nick + " " + chan + "\r\n"
+#define RPL_INVITING(nick, target, chan) \
+	":c-irc.net 341 " + nick + " " + target + " " + chan + "\r\n"
 
 #define RPL_VERSION(nick, server, version) \
 	":c-irc.net 351 " + nick + " " + version + ".42 :c-irc.net\r\n"
@@ -62,6 +62,10 @@
 #define RPL_TIME(nick, time) \
 	":c-irc.net 391 " + nick + " :" + time + "\r\n"
 
+/*
+ *	Rebuilding needed commands.
+ */
+
 #define RPL_NICK(nick, user, new_nick) \
 	":" + nick + "!" + user + "@c-irc.net NICK :" + new_nick + "\r\n"
 
@@ -81,6 +85,9 @@
 
 #define RPL_KILL(nick, user, victim, reason) \
 	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " :" + reason + "\r\n"
+
+#define RPL_INVITED(nick, user, target, channel) \
+	":" + nick + "!" + user + "@c-irc.net INVITE " + target + " :" + channel + "\r\n"
 
 #define RPL_CAP \
 	":c-irc.net CAP * LS:\r\n"
