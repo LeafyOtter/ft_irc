@@ -230,7 +230,7 @@ namespace c_irc
 
 		LOG("args not 0");
 
-		do
+		while (0xCAFE)
 		{
 			chan_name = args[0].substr(0, args[0].find_first_of(','));
 			args[0] = args[0].substr(args[0].find_first_of(',') + 1);
@@ -239,6 +239,9 @@ namespace c_irc
 				key = args[1].substr(0, args[1].find_first_of(','));
 				args[1] = args[1].substr(args[1].find_first_of(',') + 1);
 			}
+
+			if (chan_name.empty())
+				break ;
 
 			LOG("chan_name : " << chan_name << " key : " << key);
 			if (channels.find(chan_name) == channels.end())
@@ -272,7 +275,7 @@ namespace c_irc
 			queue_message(RPL_JOIN(nick, user.get_user(), chan_name), \
 				chan->begin(), chan->end(), chan->get_user(fd));
 			msg += RPL_JOIN(nick, user.get_user(), chan_name);
-		} while (args[0].find_first_of(',') != std::string::npos);
+		}
 		queue_message(msg, fd);
 	}
 }
