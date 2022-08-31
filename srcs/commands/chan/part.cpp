@@ -38,9 +38,9 @@ namespace c_irc
                 std::string name = "PART";
                 std::string nick = user.get_nick();
                 std::string reason = "unknow"; 
-                if (not user.is_mode(U_MODE_REGISTERED_PASS))
+		if (user.is_mode(U_MODE_RESTRICTED))
 			return ;
-                if (args.empty())
+		if (args.empty())
 		{
 			queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
 			return ;
@@ -62,10 +62,10 @@ namespace c_irc
                                         queue_message(RPL_LEAVINGCHAN(nick, element[i], reason), fd); // replies qui n'existe pas
                                 }
                                 else 
-                                        queue_message(ERR_NOTONCHANNEL(element[i]), fd);
+                                        queue_message(ERR_NOTONCHANNEL(nick, element[i]), fd);
 			}  
                         else 
-                                queue_message(ERR_NOSUCHCHANNEL(element[i]), fd);
+                                queue_message(ERR_NOSUCHCHANNEL(nick, element[i]), fd);
                 }        
         }
 } 
