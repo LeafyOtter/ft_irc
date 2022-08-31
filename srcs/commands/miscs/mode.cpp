@@ -214,7 +214,8 @@ namespace c_irc
 						break ;
 
 					case 'p':
-						c_set_unset(*chan, C_MODE_PRIVATE, type);
+						if (not chan->is_mode(C_MODE_SECRET))
+							c_set_unset(*chan, C_MODE_PRIVATE, type);
 						break ;
 
 					case 't':
@@ -222,7 +223,8 @@ namespace c_irc
 						break ;
 
 					case 's':
-						c_set_unset(*chan, C_MODE_SECRET, type);
+						if (not chan->is_mode(C_MODE_PRIVATE))
+							c_set_unset(*chan, C_MODE_SECRET, type);
 						break ;
 
 					case 'o':

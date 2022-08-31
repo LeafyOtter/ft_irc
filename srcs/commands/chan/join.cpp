@@ -205,15 +205,11 @@ namespace c_irc
 
 		nick = user.get_nick();
 
-		LOG("cmd_join");
-
 		if (user.is_mode(U_MODE_RESTRICTED))
 		{
 			queue_message(ERR_NOTREGISTERED(nick), fd);
 			return ;
 		}
-
-		LOG("not restricted");
 
 		if (args.empty())
 		{
@@ -221,18 +217,15 @@ namespace c_irc
 			return ;
 		}
 
-		LOG("args not empty");
-
 		if (args[0] == "0")
 		{
 			// loop on all chans and remove user
 			return ;
 		}
 
-		LOG("args not 0");
-
 		while (pos != std::string::npos)
 		{
+			key = "";
 			if (args.size() >= 2)
 			{
 				pos = args[1].find(',');
@@ -244,7 +237,6 @@ namespace c_irc
 			chan_name = args[0].substr(0, pos);
 			args[0] = pos != std::string::npos ? args[0].substr(pos + 1) : "";
 
-			LOG("chan_name : " << chan_name << " key : " << key);
 			if (channels.find(chan_name) == channels.end())
 			{
 				create_channel(chan_name, fd, key);
