@@ -292,6 +292,8 @@ namespace c_irc
 	{
 		commands_t::iterator it = commands.find(cmd.get_cmd());
 
+		if (it == commands.end())
+			return ;
 		LOG_USER(fd, "Executing command : " + cmd.get_cmd());
 		cmd_ptr ptr = (*it).second;
 		(this->*ptr)(fd, cmd.get_args());
