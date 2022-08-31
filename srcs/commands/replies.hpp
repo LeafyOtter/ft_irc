@@ -26,10 +26,10 @@
 #define RPL_CHANNELMODEIS(nick, chan, mode) \
 	":c-irc.net 324 " + nick + " " + chan + " " + mode + "\r\n"
 
-#define RPL_NOTOPIC(chan) \
-	":c-irc.net 331 " + chan + " :No topic is set\r\n"
-#define RPL_TOPIC(chan, topic) \
-	":c-irc.net 332 " + chan + " :" + topic + "\r\n"
+#define RPL_NOTOPIC(nick, chan) \
+	":c-irc.net 331 " + nick + " " + chan + " :No topic is set\r\n"
+#define RPL_TOPIC(nick, chan, topic) \
+	":c-irc.net 332 " + nick + " " + chan + " :" + topic + "\r\n"
 
 #define RPL_INVITING(nick, target, chan) \
 	":c-irc.net 341 " + nick + " " + target + " " + chan + "\r\n"
@@ -76,6 +76,9 @@
 
 #define RPL_PRIVMSG(nick, user, target, msg) \
 	":" + nick + "!" + user + "@c-irc.net PRIVMSG " + target + " :" + msg + "\r\n"
+
+#define RPL_TOPIC_CHANGE(nick, user, chan, topic) \
+	":" + nick + "!" + user + "@c-irc.net TOPIC " + chan + " :" + topic + "\r\n"
 
 #define RPL_ERROR \
 	":c-irc.net ERROR :Disconnect\r\n"

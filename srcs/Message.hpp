@@ -23,6 +23,7 @@ namespace c_irc
 		chan_users_it_t		first_target;
 		chan_users_it_t		last_target;
 		chan_users_it_t		sender;
+		bool				has_sender;
 
 		serv_users_t		&users;
 

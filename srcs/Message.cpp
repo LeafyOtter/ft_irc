@@ -10,6 +10,7 @@ namespace c_irc
 		, first_target(first)
 		, last_target(last)
 		, sender(chan_users_it_t())
+		, has_sender(false)
 		, users(u)
 	{}
 
@@ -21,6 +22,7 @@ namespace c_irc
 		, first_target(chan_users_it_t())
 		, last_target(chan_users_it_t())
 		, sender(chan_users_it_t())
+		, has_sender(false)
 		, users(u)
 	{}
 
@@ -32,6 +34,7 @@ namespace c_irc
 		, first_target(other.first_target)
 		, last_target(other.last_target)
 		, sender(other.sender)
+		, has_sender(other.has_sender)
 		, users(other.users)
 	{}
 
@@ -56,18 +59,19 @@ namespace c_irc
 	bool Message::get_status() { return (to_pop); }
 
 	void Message::set_message(std::string new_message) { message = new_message; }
-	void Message::set_sender(chan_users_it_t new_sender) { sender = new_sender; }
+	void Message::set_sender(chan_users_it_t new_sender) { sender = new_sender; has_sender = true;}
 	void Message::set_status() { to_pop = true; }
 
 	void Message::append_message(std::string new_message) { message += new_message; }
 
 	int Message::nb_users() const
 	{
-
 		int i = 0;
 
 		if (target_type == TARGET_UNREGISTERED)
 			return (1);
+		if (not has_sender)
+			return (users.size());
 		for (chan_users_it_t it = first_target; it != last_target; ++it) {
 			if (it->first != sender->first)
 				++i;
@@ -82,8 +86,9 @@ namespace c_irc
 			return ;
 		}
 		for (chan_users_it_t it = first_target; it != last_target; ++it) {
-			if (it->first != sender->first)
-				users.at(it->first)->set_pollout();
+			if (has_sender and it->first == sender->first)
+				continue ;
+			users.at(it->first)->set_pollout();
 		}
 	}
 } // namespace c_irc
