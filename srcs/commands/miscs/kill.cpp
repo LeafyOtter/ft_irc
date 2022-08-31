@@ -10,6 +10,12 @@ namespace c_irc
 		c_irc::User *user = users[fd];
 		std::string nick = user->get_nick();
 
+		if (users[fd]->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(users[fd]->get_nick()), fd);
+			return ;
+		}
+
 		if (args.size() < 2)
 		{
 			queue_message(ERR_NEEDMOREPARAMS(nick, "KILL"), fd);

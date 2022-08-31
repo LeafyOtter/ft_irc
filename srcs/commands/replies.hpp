@@ -61,6 +61,9 @@
 #define RPL_KILL(nick, user, victim, reason) \
 	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " :" + reason + "\r\n"
 
+#define RPL_CAP \
+	":c-irc.net CAP * LS:\r\n"
+
 // :otter!otter_0x2e3@ircserv.42 MODE otter +i
 //001    RPL_WELCOME
 //       "Welcome to the Internet Relay Network

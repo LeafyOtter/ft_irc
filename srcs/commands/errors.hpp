@@ -31,6 +31,9 @@
 #define ERR_NOTONCHANNEL(nick, chan) \
 	":c-irc.net 442 " + nick + " " + chan + " :You're not on that channel\r\n"
 
+#define ERR_NOTREGISTERED(nick) \
+	":c-irc.net 451 " + nick + " :You have not registered\r\n"
+
 #define ERR_NEEDMOREPARAMS(nick, n) \
 	":c-irc.net 461 " + nick + " " + n + " :Not enough parameters\r\n"
 #define ERR_ALREADYREGISTERED(nick) \

@@ -14,6 +14,13 @@ namespace c_irc
 		std::string nick = user->get_nick();
 		std::string	chan_identifiers = "&#+!";
 
+		if (user->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(user->get_nick()), fd);
+			return ;
+		}
+
+
 		if (args.empty())
 		{
 			// queue_message(ERR_NORECIPIENT(nick, cmd), fd);
