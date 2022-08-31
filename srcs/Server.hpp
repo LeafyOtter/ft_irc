@@ -34,6 +34,9 @@ namespace c_irc
 		commands_t		commands;
 		// Logger		*log;
 
+		std::string		creation_time;
+		std::string		compilation_time;
+
 		public:
 
 		Server();
@@ -53,15 +56,27 @@ namespace c_irc
 		void			send_message(c_irc::Message *msg, pollfd &pfd);
 		void			create_channel(std::string name, int user, std::string key);
 		void			delete_channel(std::string name);
+		void			delete_user(int fd);
 		void			delete_user(int index, int fd);
 
 		void			parse_message(std::string msg, int fd);
 		void			execute_command(c_irc::Command &cmd, int fd);
 		void			init_commands();
 		void			queue_message(std::string msg, int fd);
-		void			queue_message(std::string msg, chan_users_it_t first, chan_users_it_t last);
+		void			queue_message(std::string msg, \
+										chan_users_it_t first, \
+										chan_users_it_t last);
+		void			queue_message(std::string msg, \
+										chan_users_it_t first, \
+										chan_users_it_t last,
+										chan_users_it_t sender);
 
 		std::string		get_password() const;
+
+		int				is_user(std::string name);
+
+		void			check_user_quit();
+		void			delete_empty_channels();
 
 		/*
 		 * Commands
@@ -106,6 +121,8 @@ namespace c_irc
 		
 		bool			channel_autorization(std::string element, int fd, std::string key); 
 
+		void			cmd_mode_chan(int fd, c_irc::User &user, arguments_t &args);
+		void			cmd_mode_user(int fd, c_irc::User &user, arguments_t &args);
 
 	};
 } // namespace c_irc

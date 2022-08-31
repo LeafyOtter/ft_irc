@@ -1,13 +1,14 @@
 #include "c_irc.hpp"
 #include "User.hpp"
 #include <vector>
+#include <sstream>
 
 namespace c_irc
 {
 	typedef std::vector<pollfd>		pollfds_t;
 
 	User::User(int new_fd, pollfds_t &new_pfds)
-		: nick("")
+		: nick("*")
 		, user("")
 		, host("")
 		, realname("")
@@ -16,6 +17,8 @@ namespace c_irc
 		, pfds(new_pfds)
 		, pfds_index(0)
 		, buffer("")
+		, to_delete(false)
+		, leave_msg("")
 	{
 		get_pollfd();	// initialize pfds_index
 	}
@@ -29,6 +32,7 @@ namespace c_irc
 	uint16_t User::get_mode() const { return (mode); }
 	int User::get_fd() const { return (fd); }
 	std::string User::get_buffer() const { return (buffer); }
+	std::string User::get_leave_msg() const { return (leave_msg); }
 
 	void User::set_nick(std::string new_nick) { nick = new_nick; }
 	void User::set_user(std::string new_user) { user = new_user; }
@@ -37,10 +41,14 @@ namespace c_irc
 	void User::set_mode(uint16_t new_mode) { mode = new_mode; }
 	void User::set_buffer(std::string new_buffer) { buffer = new_buffer; }
 	void User::append_buffer(std::string append) { buffer += append; }
+	void User::set_leave_msg(std::string new_msg) { leave_msg = new_msg; }
 
 	bool User::is_mode(uint16_t flag) const { return (mode & flag); }
 	void User::set_flag_mode(uint16_t flag) { mode |= flag; }
 	void User::unset_flag_mode(uint16_t flag) { mode &= ~flag; }
+
+	void User::set_delete() { to_delete = true; }
+	bool User::is_delete() const { return (to_delete); }
 
 	void User::set_pollout()
 	{
@@ -67,4 +75,33 @@ namespace c_irc
 		}
 		return (NULL);
 	}
+
+	static
+	std::ostream &print_flag(std::ostream &os, uint16_t flag, uint16_t mode)
+	{
+		// √
+
+		if (mode & flag)
+			os << COLOR_GREEN << "✔";
+		else
+			os << COLOR_RED << "x";
+		os << COLOR_RESET;
+		return (os);
+	}
+
+	std::ostream& operator<<(std::ostream &os, const User &user)
+	{
+		os << user.get_nick() << " ";
+		os << "Invisible: [";
+		print_flag(os, U_MODE_INVISIBLE, user.get_mode());
+		os << "] ";
+		os << "Restricted: [";
+		print_flag(os, U_MODE_RESTRICTED, user.get_mode());
+		os << "] ";
+		os << "Operator: [";
+		print_flag(os, U_MODE_OPERATOR, user.get_mode());
+		os << "] ";
+		return (os);
+	}
+	
 } // namespace c_irc

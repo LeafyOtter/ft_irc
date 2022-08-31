@@ -1,5 +1,11 @@
 #pragma once
 
+#define VERSION "version 0.0.1"
+#define AUTHOR "John Doe"
+#define GITHUB "https://github.com/LeafyOtter/ft_irc"
+
+#define MOTD_FILE "./motd/motd_1.txt"
+
 #include <map>
 #include <queue>
 #include <set>
@@ -25,13 +31,8 @@
 #define C_MODE_KEY				0x0004	// k : channel requires key
 #define C_MODE_SECRET			0x0008	// s : secret channel
 #define C_MODE_TOPIC_LOCK		0x0010	// t : topic locked (can still be changed by op)
-
-/**
- * @brief banned user
- *
- * Can still talk in channel, if U_MODE_CHAN_OPERATOR is set
- * Can still join channel, if invited by chanop
- */
+#define C_MODE_NO_EXTERNAL		0x0020	// n : no external messages
+#define C_MODE_PRIVATE			0x0040	// p : private channel
 
 // Colors
 #define COLOR_BLACK				"\x1b[30m"
@@ -45,6 +46,9 @@
 #define COLOR_RESET				"\x1b[0m"
 
 #include "User.hpp"
+
+#define OPER_NAME				"c_irc_oper"
+#define OPER_PASS				"hello42"
 
 namespace c_irc
 {

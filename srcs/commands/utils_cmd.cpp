@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "replies.hpp"
+#include "utils.tpp"
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ namespace c_irc
 		LOG_USER(fd, "welcoming");	
 		welcome  = RPL_WELCOME(user.get_nick(), user.get_user());
 		welcome += RPL_YOURHOST(user.get_nick());
-		welcome += RPL_CREATED(user.get_nick(), "[Placeholder]");
+		welcome += RPL_CREATED(user.get_nick(), creation_time);
 		welcome += RPL_MYINFO(user.get_nick());
 		queue_message(welcome, fd);
 		user.unset_flag_mode(U_MODE_RESTRICTED);

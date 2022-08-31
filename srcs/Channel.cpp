@@ -32,7 +32,8 @@ namespace c_irc
 
 	void Channel::set_topic(std::string new_topic) { topic = new_topic; }
 	void Channel::set_key(std::string new_key) { key = new_key; }
-	void Channel::set_mode(uint16_t new_mode) { mode = new_mode; }
+	void Channel::set_mode(uint16_t new_mode) { mode |= new_mode; }
+	void Channel::unset_mode(uint16_t new_mode) { mode &= ~new_mode; }
 	void Channel::set_limit(uint16_t new_limit) { limit = new_limit; }
 
 	void Channel::set_user_mode(int fd, uint16_t new_mode)
@@ -44,6 +45,12 @@ namespace c_irc
 	{
 		chan_users[fd] &= ~new_mode;
 	}
+
+	bool Channel::is_mode(uint16_t mode) const { return (this->mode & mode); }
+
+	void Channel::set_user_mode(int fd) { chan_users[fd] = true; }
+	void Channel::unset_user_mode(int fd) { chan_users[fd] = false; }
+	bool Channel::is_user_op(int fd) { return (chan_users[fd]);}
 
 	void Channel::add_user(int id)
 	{
@@ -127,6 +134,16 @@ namespace c_irc
 	}
 
 	bool  Channel::is_mode(uint16_t fl) { return (mode & fl); }
+
+	int Channel::fd_from_nick(std::string new_user)
+	{
+		for (chan_users_it_t it = begin(); it != end(); ++it)
+			if (serv_users.at(it->first)->get_nick() == new_user)
+				return (it->first);
+		return (-1);
+	}
+
+	bool Channel::is_empty() const { return (chan_users.empty()); }
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }

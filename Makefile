@@ -14,6 +14,7 @@ SRCS_LIST = \
 	Message.cpp \
 	Channel.cpp \
 	Command.cpp \
+	utils.cpp \
 	commands/user/nick.cpp \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
@@ -25,8 +26,19 @@ SRCS_LIST = \
 	commands/chan/list.cpp \
 	commands/chan/names.cpp \
 	commands/chan/part.cpp \
-	commands/chan/topic.cpp 
-
+	commands/chan/topic.cpp \
+	commands/user/oper.cpp \
+	commands/user/quit.cpp \
+	commands/utils_cmd.cpp \
+	commands/miscs/kill.cpp \
+	commands/miscs/mode.cpp \
+	commands/miscs/ping.cpp \
+	commands/miscs/time.cpp \
+	commands/msg/privmsg.cpp \
+	commands/msg/notice.cpp \
+	commands/server/info.cpp \
+	commands/server/motd.cpp \
+	commands/server/version.cpp
 
 SRCS_DIR := srcs
 OBJS_DIR := objs

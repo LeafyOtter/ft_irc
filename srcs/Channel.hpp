@@ -50,10 +50,16 @@ namespace c_irc
 		void			set_topic(std::string new_topic);
 		void			set_key(std::string new_key);
 		void			set_mode(uint16_t new_mode);
+		void			unset_mode(uint16_t new_mode);
 		void			set_limit(uint16_t new_limit);
 
 		void			set_user_mode(int fd, uint16_t new_mode);
 		void			unset_user_mode(int fd, uint16_t new_mode);
+		bool			is_mode(uint16_t mode) const;
+
+		void			set_user_mode(int fd);
+		void			unset_user_mode(int fd);
+		bool			is_user_op(int fd);
 
 		void			add_user(int fd);
 		void			remove_user(int fd);
@@ -68,8 +74,12 @@ namespace c_irc
 		bool			is_user_banned(std::string new_user);
 		bool			is_user_invited(std::string new_user);
 		bool			is_user_in_channel(std::string new_user);
-		bool  			is_mode(uint16_t fl);
- 
+		bool			is_mode(uint16_t fl);
+
+		int				fd_from_nick(std::string new_nick);
+
+		bool			is_empty() const;
+
 		chan_users_it_t		begin();
 		chan_users_it_t		end();
 

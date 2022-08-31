@@ -56,7 +56,6 @@ namespace c_irc
 		c_irc::User &user = *users[fd];
 
 		old_nick = user.get_nick();
-		old_nick = old_nick.empty() ? "*" : old_nick;
 
 		if (not user.is_mode(U_MODE_REGISTERED_PASS))
 			return ;
@@ -87,6 +86,23 @@ namespace c_irc
 		user.set_flag_mode(U_MODE_REGISTERED_NICK);
 
 		LOG_USER(fd, "set nickname to " << nick);
+
+		queue_message(RPL_NICK(old_nick, user.get_user(), nick), fd);
+
+		// if (not user.is_mode(U_MODE_RESTRICTED))
+		// {
+		// 	std::cout << "DEBUG: user " << fd << " is not restricted" << std::endl;
+		// 	for (channels_it_t it = channels.begin(); it != channels.end(); ++it)
+		// 	{
+		// 		if (it->second->fd_from_nick(nick) == fd)
+		// 		{
+		// 			std::string msg = RPL_NICK(old_nick, user.get_user(), nick);
+		// 			queue_message(msg , it->second->begin(), \
+		// 								it->second->end(), \
+		// 								it->second->get_user(fd));
+		// 		}
+		// 	}
+		// }
 
 		if (user.is_mode(U_MODE_RESTRICTED))
 			welcome(fd);
