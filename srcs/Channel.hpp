@@ -80,6 +80,8 @@ namespace c_irc
 
 		bool			is_empty() const;
 
+		bool			is_full() const;
+
 		chan_users_it_t		begin();
 		chan_users_it_t		end();
 
