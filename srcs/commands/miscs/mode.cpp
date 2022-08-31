@@ -171,7 +171,7 @@ namespace c_irc
 
 		if (not chan->is_user_op(fd))
 		{
-			queue_message(ERR_CHANOPRIVISNEEDED(nick, name), fd);
+			queue_message(ERR_CHANOPRIVSNEEDED(nick, name), fd);
 			return ;
 		}
 
