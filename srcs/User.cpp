@@ -8,7 +8,7 @@ namespace c_irc
 	typedef std::vector<pollfd>		pollfds_t;
 
 	User::User(int new_fd, pollfds_t &new_pfds)
-		: nick("")
+		: nick("*")
 		, user("")
 		, host("")
 		, realname("")

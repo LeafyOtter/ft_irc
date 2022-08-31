@@ -15,6 +15,12 @@ namespace c_irc
 		std::string line;
 		std::string nick = users[fd]->get_nick();
 
+		if (users[fd]->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(users[fd]->get_nick()), fd);
+			return ;
+		}
+
 		std::ifstream file(MOTD_FILE, std::ios::in);
 		if (not file.is_open())
 		{

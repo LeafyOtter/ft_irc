@@ -262,6 +262,13 @@ namespace c_irc
 		std::string	chan_identifiers = "&#+!";
 
 		LOG_USER(fd, "cmd_mode");
+
+		if (users[fd]->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(users[fd]->get_nick()), fd);
+			return ;
+		}
+
 		if (args.size() < 1)
 		{
 			queue_message(ERR_NEEDMOREPARAMS(user.get_nick(), "MODE"), fd);

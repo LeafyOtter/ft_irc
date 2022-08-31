@@ -28,6 +28,11 @@ namespace c_irc
 		c_irc::User *user = users[fd];
 		std::string msg = "";
 
+		if (user->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(user->get_nick()), fd);
+			return ;
+		}
 
 		if (args.size() < 2)
 		{

@@ -10,6 +10,12 @@ namespace c_irc
 	{
 		std::string nick = users[fd]->get_nick();
 
+		if (users[fd]->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(users[fd]->get_nick()), fd);
+			return ;
+		}
+
 		if (args.size() != 0 and args[0] != "c-irc.net")
 		{
 			queue_message(ERR_NOSUCHSERVER(nick, args[0]), fd);
