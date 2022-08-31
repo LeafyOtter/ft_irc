@@ -93,33 +93,32 @@ namespace c_irc
 		}
 
 		if (channels.find(args[1]) == channels.end())
+			;
+		else
 		{
-			queue_message(ERR_NOSUCHCHANNEL(sender_nick, args[1]), fd);
-			return ;
+			c_irc::Channel &channel = *channels[args[1]];
+
+			if (not channel.is_user_in_channel(sender_nick))
+			{
+				queue_message(ERR_NOTONCHANNEL(sender_nick, args[1]), fd);
+				return ;
+			}
+
+			if (channel.is_user_in_channel(target_nick))
+			{
+				queue_message(ERR_USERONCHANNEL(sender_nick, target_nick, args[1]), fd);
+				return ;
+			}
+
+			if (channel.is_mode(C_MODE_INVITE_ONLY) \
+				and not channel.is_user_op(fd))
+			{
+				queue_message(ERR_CHANOPRIVSNEEDED(sender_nick, args[1]), fd);
+				return ;
+			}
+
+			channel.invite_user(target_nick);
 		}
-
-		c_irc::Channel &channel = *channels[args[1]];
-
-		if (not channel.is_user_in_channel(sender_nick))
-		{
-			queue_message(ERR_NOTONCHANNEL(sender_nick, args[1]), fd);
-			return ;
-		}
-
-		if (channel.is_user_in_channel(target_nick))
-		{
-			queue_message(ERR_USERONCHANNEL(sender_nick, target_nick, args[1]), fd);
-			return ;
-		}
-
-		if (channel.is_mode(C_MODE_INVITE_ONLY) \
-			and not channel.is_user_op(fd))
-		{
-			queue_message(ERR_CHANOPRIVSNEEDED(sender_nick, args[1]), fd);
-			return ;
-		}
-
-		channel.invite_user(target_nick);
 		queue_message(RPL_INVITING(sender_nick, target_nick, args[1]), fd);
 		queue_message(RPL_INVITED(sender_nick, user.get_user(), target_nick, args[1]), target_fd);
 	}
