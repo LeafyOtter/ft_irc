@@ -144,6 +144,7 @@ namespace c_irc
 	}
 
 	bool Channel::is_empty() const { return (chan_users.empty()); }
+	bool Channel::is_full() const { return (chan_users.size() == limit); }
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }

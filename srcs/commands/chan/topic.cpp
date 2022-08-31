@@ -48,7 +48,7 @@ namespace c_irc
                 {
                         if(not channels[args[0]]->is_user_in_channel(nick))  
                         {
-                                queue_message(ERR_NOTONCHANNEL(args[0]), fd);   
+                                queue_message(ERR_NOTONCHANNEL(nick, args[0]), fd);   
                                 return;
                         }
                         topic = channels[args[0]]->get_topic(); 

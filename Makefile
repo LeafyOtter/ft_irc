@@ -29,7 +29,6 @@ SRCS_LIST = \
 	commands/chan/topic.cpp \
 	commands/user/oper.cpp \
 	commands/user/quit.cpp \
-	commands/utils_cmd.cpp \
 	commands/miscs/kill.cpp \
 	commands/miscs/mode.cpp \
 	commands/miscs/ping.cpp \
