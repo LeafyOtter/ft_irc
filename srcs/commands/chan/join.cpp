@@ -201,6 +201,7 @@ namespace c_irc
 		std::string msg;
 		c_irc::Channel *chan;
 		c_irc::User &user = *users[fd];
+		size_t pos = 0;
 
 		nick = user.get_nick();
 
@@ -230,18 +231,18 @@ namespace c_irc
 
 		LOG("args not 0");
 
-		while (0xCAFE)
+		while (pos != std::string::npos)
 		{
-			chan_name = args[0].substr(0, args[0].find_first_of(','));
-			args[0] = args[0].substr(args[0].find_first_of(',') + 1);
 			if (args.size() >= 2)
 			{
-				key = args[1].substr(0, args[1].find_first_of(','));
-				args[1] = args[1].substr(args[1].find_first_of(',') + 1);
+				pos = args[1].find(',');
+				key = args[1].substr(0, pos);
+				args[1] = pos != std::string::npos ? args[1].substr(pos + 1) : "";
 			}
 
-			if (chan_name.empty())
-				break ;
+			pos = args[0].find(',');
+			chan_name = args[0].substr(0, pos);
+			args[0] = pos != std::string::npos ? args[0].substr(pos + 1) : "";
 
 			LOG("chan_name : " << chan_name << " key : " << key);
 			if (channels.find(chan_name) == channels.end())
