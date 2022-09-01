@@ -125,8 +125,8 @@ namespace c_irc
 
 		// Change signal behavior
 		signal(SIGINT, &signal_handler);
-		// signal(SIGTERM, &signal_handler);
-		// signal(SIGQUIT, &signal_handler);
+		signal(SIGTERM, &signal_handler);
+		signal(SIGQUIT, &signal_handler);
 		pollfds.reserve(42);
 		while (0xCAFE) {
 			if (not buffer.empty())
