@@ -93,7 +93,7 @@
 	":" + nick + "!" + user + "@c-irc.net MODE " + channel + " " + mode + "\r\n"
 
 #define RPL_KILL(nick, user, victim, reason) \
-	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " :" + reason + "\r\n"
+	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " " + reason + "\r\n"
 
 #define RPL_QUIT(nick, user, reason) \
 	":" + nick + "!" + user + "@c-irc.net QUIT :" + reason + "\r\n"
