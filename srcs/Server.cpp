@@ -139,12 +139,16 @@ namespace c_irc
 				else
 					buffer.front()->prepare();
 			}
-			rc = poll(&pollfds[0], pollfds.size(), -1);
+			rc = poll(&pollfds[0], pollfds.size(), 2500);
 			if (rc == -1) {
 				if (errno == EINTR)
 					break ;
 				close(server_fd);
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
+			}
+			if (rc == 0) {
+				check_user_quit();
+				continue ;
 			}
 			if (pollfds[0].revents == POLLIN) // new connection to server waiting
 				accept_connections();

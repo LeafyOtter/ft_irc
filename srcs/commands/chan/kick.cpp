@@ -50,7 +50,7 @@ namespace c_irc
 		std::vector <std::string> users_to_kick;
 		std::vector <std::string> from_chan_kick;
 		std::string chan_name; 
-		
+
 		if (user.is_mode(U_MODE_RESTRICTED))
 		{
 			queue_message(ERR_NOTREGISTERED(nick), fd);
@@ -65,6 +65,8 @@ namespace c_irc
 			return; 
 		if (args.size() == 3)
 				comment = args[2];
+		else
+			comment = nick;
 		split(args[0], ',', from_chan_kick); 
 		split(args[1], ',', users_to_kick);
 
@@ -85,7 +87,7 @@ namespace c_irc
 			{
 				queue_message(ERR_CHANOPRIVSNEEDED(nick, chan_name), fd);
 				return ;
-			}  
+			}
 			for(size_t i = 0; i < users_to_kick.size(); i++)
 			{
 				if (not channels[chan_name]->is_user_in_channel(users_to_kick[i]))
@@ -93,7 +95,8 @@ namespace c_irc
 				else 
 				{
 					channels[chan_name]->remove_user(users_to_kick[i]); 
-					queue_message(RPL_PART(nick, users_to_kick[i], chan_name, comment), fd);
+					queue_message(RPL_KICK(nick, users[fd]->get_user(), chan_name, \
+						users_to_kick[i], comment), channels[chan_name]);
 				}
 			}
 		}
@@ -116,7 +119,9 @@ namespace c_irc
 				else
 				{
 					channels[from_chan_kick[i]]->remove_user(users_to_kick[i]);
-					queue_message(RPL_PART(nick, users_to_kick[i], from_chan_kick[i], comment), fd);
+					queue_message(RPL_KICK(nick, users[fd]->get_user(), \
+						from_chan_kick[i], users_to_kick[i], comment), channels[from_chan_kick[i]]);
+					// queue_message(RPL_KICK(users_to_kick[i], users[fd_target]->get_user(), from_chan_kick[i], comment), fd);
 				}
 			}
 		}
