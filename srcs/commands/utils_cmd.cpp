@@ -21,5 +21,8 @@ namespace c_irc
 		welcome += RPL_MYINFO(user.get_nick());
 		queue_message(welcome, fd);
 		user.unset_flag_mode(U_MODE_RESTRICTED);
+
+		c_irc::arguments_t args;
+		cmd_motd(fd, args);
 	}
 } // namespace c_irc

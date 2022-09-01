@@ -71,7 +71,7 @@ namespace c_irc
 			}
 			channel->remove_user(fd);
 			std::string tmp = RPL_PART(nick, user.get_user(), chan_name, reason);
-			queue_message(tmp, channel->begin(), channel->end());
+			queue_message(tmp, channel, fd);
 			msg += tmp;
 		}
 		queue_message(msg, fd);

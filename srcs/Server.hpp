@@ -63,13 +63,8 @@ namespace c_irc
 		void			execute_command(c_irc::Command &cmd, int fd);
 		void			init_commands();
 		void			queue_message(std::string msg, int fd);
-		void			queue_message(std::string msg, \
-										chan_users_it_t first, \
-										chan_users_it_t last);
-		void			queue_message(std::string msg, \
-										chan_users_it_t first, \
-										chan_users_it_t last,
-										chan_users_it_t sender);
+		void			queue_message(std::string payload, c_irc::Channel *chan);
+		void			queue_message(std::string payload, c_irc::Channel *chan, int fd);
 
 		std::string		get_password() const;
 
@@ -116,7 +111,8 @@ namespace c_irc
 		 */
 
 		void			print_channel_list(Channel *chan, int fd, std::string nick);
-		void			print_users_list(Channel *chan, int fd, std::string nick); 
+		std::string		print_users_list(Channel *chan, int fd, std::string nick); 
+		std::string		print_users_list(Channel *chan, int fd, std::string nick, std::set<int> &users_in_chan); 
 		void			parse_cmd_join(arguments_t &args, int fd, std::string chan_name); 
 		
 		bool			channel_autorization(std::string element, int fd, std::string key); 

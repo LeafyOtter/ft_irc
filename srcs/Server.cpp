@@ -130,7 +130,7 @@ namespace c_irc
 		pollfds.reserve(42);
 		while (0xCAFE) {
 			if (not buffer.empty()) {
-				if (not buffer.front()->nb_users()) {
+				if (not buffer.front()->nb_targets()) {
 					delete buffer.front();
 					buffer.pop();
 				}
@@ -330,28 +330,25 @@ namespace c_irc
 
 	void Server::queue_message(std::string payload, int fd)
 	{
-		c_irc::Message *msg = new c_irc::Message(users, fd, payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, fd);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, 0);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan, int fd)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_sender(sender);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, fd);
 		buffer.push(msg);
 	}
 
