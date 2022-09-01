@@ -104,6 +104,7 @@ namespace c_irc
 		std::string msg;
 		c_irc::Channel *chan;
 		c_irc::User &user = *users[fd];
+		channels_t::iterator it; 
 		size_t pos = 0;
 
 		nick = user.get_nick();
@@ -122,7 +123,13 @@ namespace c_irc
 
 		if (args[0] == "0")
 		{
-			// loop on all chans and remove user
+			// loop on all chans and remove user 
+			
+			for (it = channels.begin(); it != channels.end(); ++it)
+			{
+				if (it->second->is_user_in_channel(fd))
+					it->second->remove_user(fd); 
+			}
 			return ;
 		}
 

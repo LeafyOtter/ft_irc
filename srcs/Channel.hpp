@@ -63,6 +63,7 @@ namespace c_irc
 
 		void			add_user(int fd);
 		void			remove_user(int fd);
+		void			remove_user(std::string new_user); 
 
 		void			ban_user(std::string new_user);
 		void			unban_user(std::string new_user);
