@@ -240,7 +240,8 @@ namespace c_irc
 			if (channels.find(chan_name) == channels.end())
 			{
 				create_channel(chan_name, fd, key);
-				queue_message(RPL_JOIN(nick, user.get_user(), chan_name), fd);
+				msg += RPL_JOIN(nick, user.get_user(), chan_name);
+				msg += print_users_list(chan, fd, nick);
 				continue ;
 			}
 
@@ -271,6 +272,7 @@ namespace c_irc
 			queue_message(RPL_JOIN(nick, user.get_user(), chan_name), \
 				chan->begin(), chan->end(), chan->get_user(fd));
 			msg += RPL_JOIN(nick, user.get_user(), chan_name);
+			msg += print_users_list(chan, fd, nick);
 		}
 		queue_message(msg, fd);
 	}

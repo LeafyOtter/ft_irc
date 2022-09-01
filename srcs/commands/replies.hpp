@@ -37,8 +37,8 @@
 #define RPL_VERSION(nick, server, version) \
 	":c-irc.net 351 " + nick + " " + version + ".42 :c-irc.net\r\n"
 
-#define RPL_NAMREPLY(nick_type, nick, chan_type, chan) \
-	":c-irc.net 353 " + chan_type + chan +  " :" + nick_type + nick + "\r\n"	
+#define RPL_NAMREPLY(nick, chan, users) \
+	":c-irc.net 353 " + nick + " " + chan + " :" + users + "\r\n"
 
 #define RPL_ENDOFNAMES(nick, chan) \
 	":c-irc.net 366 " + nick + " " + chan + " :End of /NAMES list\r\n"
