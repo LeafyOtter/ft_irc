@@ -129,8 +129,10 @@ namespace c_irc
 		// signal(SIGQUIT, &signal_handler);
 		pollfds.reserve(42);
 		while (0xCAFE) {
-			if (not buffer.empty()) {
-				if (not buffer.front()->nb_targets()) {
+			if (not buffer.empty())
+			{
+				if (not buffer.front()->nb_targets())
+				{
 					delete buffer.front();
 					buffer.pop();
 				}
@@ -149,7 +151,8 @@ namespace c_irc
 			if (rc)
 				check_all_clients(rc);
 			delete_empty_channels();
-			if (not buffer.empty() and buffer.front()->get_status()) {
+			if (not buffer.empty() and buffer.front()->get_status())
+			{
 				delete buffer.front();
 				buffer.pop();
 			}
@@ -189,6 +192,11 @@ namespace c_irc
 				break ;
 			if (pollfds[i].revents)
 				n--;
+			if (pollfds[i].revents & POLLOUT)
+			{
+				send_message(buffer.front(), pollfds[i]);
+				check_user_quit();
+			}
 			if (pollfds[i].revents & POLLIN) {
 				std::fill(buf, buf + sizeof(buf), 0);
 				int rc = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
@@ -198,11 +206,7 @@ namespace c_irc
 				}
 				parse_message(buf, pollfds[i].fd);
 			}
-			if (pollfds[i].revents & POLLOUT)
-			{
-				send_message(buffer.front(), pollfds[i]);
-				check_user_quit();
-			}
+
 		}
 	}
 
