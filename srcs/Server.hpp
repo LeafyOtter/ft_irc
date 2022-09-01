@@ -117,6 +117,7 @@ namespace c_irc
 
 		void			print_channel_list(Channel *chan, int fd, std::string nick);
 		std::string		print_users_list(Channel *chan, int fd, std::string nick); 
+		std::string		print_users_list(Channel *chan, int fd, std::string nick, std::set<int> &users_in_chan); 
 		void			parse_cmd_join(arguments_t &args, int fd, std::string chan_name); 
 		
 		bool			channel_autorization(std::string element, int fd, std::string key); 

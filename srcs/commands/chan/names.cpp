@@ -21,7 +21,6 @@
 */
 namespace c_irc
 {
-
 	std::string chan_state(Channel *chan)
 	{
 		if (chan->is_mode(C_MODE_SECRET))
@@ -34,12 +33,17 @@ namespace c_irc
 
 	std::string	Server::print_users_list(Channel *chan, int fd, std::string nick)
 	{
+		std::set<int>	tmp;
+
+		return (print_users_list(chan, fd, nick, tmp));
+	}
+
+	std::string	Server::print_users_list(Channel *chan, int fd, std::string nick, std::set<int> &user_in_chan)
+	{
 		std::string chan_name = chan_state(chan) + chan->get_name();
 		std::string op_user = "";
 		std::string normal_user = "";
 		std::string msg;
-
-		(void)fd;
 
 		for (chan_users_it_t it = chan->begin(); it != chan->end(); it++)
 		{
@@ -59,6 +63,7 @@ namespace c_irc
 					normal_user += " ";
 				normal_user += users[it->first]->get_nick();
 			}
+			user_in_chan.insert(it->first);
 		}
 
 		msg = op_user + " " + normal_user;
@@ -77,6 +82,8 @@ namespace c_irc
 		std::map<std::string, c_irc::Channel *>::iterator it; 
 		std::string nick;
 		std::string msg = "";
+		std::set<int> user_in_chan;
+		std::string tmp;
 		nick = user.get_nick();
 
 		if (user.is_mode(U_MODE_RESTRICTED))
@@ -89,25 +96,35 @@ namespace c_irc
 		{	
 			for (it = channels.begin(); it != channels.end(); it++ ) 
 				if (!(it->second->is_mode(C_MODE_SECRET)) || it->second->is_user_in_channel(nick))
-					msg += print_users_list(it->second, fd, nick);
+					msg += print_users_list(it->second, fd, nick, user_in_chan);
+			
+			for (serv_users_it_t it = users.begin(); it != users.end(); it++)
+			{
+				if (it->second->is_mode(U_MODE_INVISIBLE) or user_in_chan.count(it->first))
+					continue ;
+				if (not tmp.empty())
+					tmp += " ";
+				tmp += it->second->get_nick();
+			}
+			msg += RPL_NAMREPLY(nick, "*", tmp);
+			msg += RPL_ENDOFNAMES(nick, "*");
+			queue_message(msg, fd);
+			return ;
 		}
 
-		if (args.size() > 0)
+		std::vector <std::string> element;
+			split(args[0], ',', element); 
+		for(size_t i = 0; i < element.size(); i++)
 		{
-			std::vector <std::string> element;
-				split(args[0], ',', element); 
-			for(size_t i = 0; i < element.size(); i++)
+			if ((it = channels.find(element[i])) != channels.end())
 			{
-				if ((it = channels.find(element[i])) != channels.end())
-				{
-					if (!(it->second->is_mode(C_MODE_SECRET)) || it->second->is_user_in_channel(nick))	// si ce n'est pas un channel secret ou que l'user et dedans ok
-						msg += print_users_list(it->second, fd, nick);
-					else	// sinon envoyer un endofnames
-						msg += RPL_ENDOFNAMES(nick, it->second->get_name());
-				}
-				else
-					msg += RPL_ENDOFNAMES(nick, element[i]); // envoyer aussi un endofname si channel inexistant
+				if (!(it->second->is_mode(C_MODE_SECRET)) || it->second->is_user_in_channel(nick))	// si ce n'est pas un channel secret ou que l'user et dedans ok
+					msg += print_users_list(it->second, fd, nick);
+				else	// sinon envoyer un endofnames
+					msg += RPL_ENDOFNAMES(nick, it->second->get_name());
 			}
+			else
+				msg += RPL_ENDOFNAMES(nick, element[i]); // envoyer aussi un endofname si channel inexistant
 		}
 		queue_message(msg, fd);
 	}

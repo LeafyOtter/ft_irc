@@ -95,6 +95,9 @@
 #define RPL_KILL(nick, user, victim, reason) \
 	":" + nick + "!" + user + "@c-irc.net KILL " + victim + " :" + reason + "\r\n"
 
+#define RPL_QUIT(nick, user, reason) \
+	":" + nick + "!" + user + "@c-irc.net QUIT :" + reason + "\r\n"
+
 #define RPL_INVITED(nick, user, target, channel) \
 	":" + nick + "!" + user + "@c-irc.net INVITE " + target + " :" + channel + "\r\n"
 

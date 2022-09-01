@@ -240,6 +240,7 @@ namespace c_irc
 			if (channels.find(chan_name) == channels.end())
 			{
 				create_channel(chan_name, fd, key);
+				chan = channels[chan_name];
 				msg += RPL_JOIN(nick, user.get_user(), chan_name);
 				msg += print_users_list(chan, fd, nick);
 				continue ;
