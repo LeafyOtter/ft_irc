@@ -8,9 +8,16 @@ namespace c_irc
 {
 	void Server::cmd_quit(int fd, arguments_t &args)
 	{
-		if (args.size() == 1)
-			users[fd]->set_leave_msg(args[0]);
+		std::string msg = args.size() >= 1 ? args[0] : "";
+		std::string nick = users[fd]->get_nick();
+
 		users[fd]->set_delete();
-		queue_message(RPL_ERROR, fd);
+		// queue_message(RPL_ERROR, fd);
+
+		for (channels_it_t it = channels.begin(); it != channels.end(); ++it)
+		{
+			if (it->second->is_user_in_channel(fd))
+				queue_message(RPL_PART(nick, users[fd]->get_user(), it->first, msg), it->second);
+		}
 	}
 } // namespace c_irc
