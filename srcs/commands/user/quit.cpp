@@ -16,6 +16,11 @@ namespace c_irc
 
 		for (channels_it_t it = channels.begin(); it != channels.end(); ++it)
 		{
+			if (it->second->get_number_of_users() == 1)
+			{
+				delete_channel(it->first);
+				continue ;
+			}
 			if (it->second->is_user_in_channel(fd))
 				queue_message(RPL_PART(nick, users[fd]->get_user(), it->first, msg), it->second);
 		}
