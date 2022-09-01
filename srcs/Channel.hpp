@@ -30,10 +30,11 @@ namespace c_irc
 
 		serv_users_t	&serv_users;
 
-		Channel();
 		Channel(const Channel &other);
 		Channel &operator=(const Channel &other);
 
+		Channel();
+		
 		public:
 
 		Channel(serv_users_t &su, std::string new_name, int fd);
@@ -44,6 +45,7 @@ namespace c_irc
 		std::string		get_key() const;
 		uint16_t		get_mode() const;
 		uint16_t		get_limit() const;
+		size_t			get_number_of_users() const; 				
 
 		void			set_topic(std::string new_topic);
 		void			set_key(std::string new_key);
@@ -61,6 +63,7 @@ namespace c_irc
 
 		void			add_user(int fd);
 		void			remove_user(int fd);
+		void			remove_user(std::string new_user); 
 
 		void			ban_user(std::string new_user);
 		void			unban_user(std::string new_user);
@@ -68,14 +71,18 @@ namespace c_irc
 		void			invite_user(std::string new_user);
 		void			uninvite_user(std::string new_user);
 
-		bool			is_name_valid(std::string new_name);
+		//bool			is_name_valid(std::string new_name);
 		bool			is_user_banned(std::string new_user);
 		bool			is_user_invited(std::string new_user);
+		bool			is_user_in_channel(int fd);
 		bool			is_user_in_channel(std::string new_user);
+		bool			is_mode(uint16_t fl);
 
 		int				fd_from_nick(std::string new_nick);
 
 		bool			is_empty() const;
+
+		bool			is_full() const;
 
 		chan_users_it_t		begin();
 		chan_users_it_t		end();

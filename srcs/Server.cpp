@@ -49,7 +49,7 @@ namespace c_irc
 			delete buffer.front();
 			buffer.pop();
 		}
-		close(fd);
+		close(server_fd);
 	}
 
 	void	Server::initialize(	std::string new_name,
@@ -66,13 +66,13 @@ namespace c_irc
 		 *	Socket creation
 		 */
 
-		fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd == -1)
+		server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_fd == -1)
 			throw std::runtime_error("socket() failed to open");
 
 		LOG("Socket created");
 
-		fcntl(fd, F_SETFL, O_NONBLOCK);
+		fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
 		/*
 		 *	Socket binding
@@ -84,9 +84,9 @@ namespace c_irc
 		server_addr.sin_port = port;
 		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		
-		rc = bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+		rc = bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("bind() failed to open");
 		}
 
@@ -96,15 +96,15 @@ namespace c_irc
 		 *	Listening socket
 		 */
 
-		rc = listen(fd, 42);
+		rc = listen(server_fd, 42);
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("listen() failed to open");
 		}
 
 		pollfd pfd;
 
-		pfd.fd = fd;
+		pfd.fd = server_fd;
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 
@@ -129,8 +129,10 @@ namespace c_irc
 		// signal(SIGQUIT, &signal_handler);
 		pollfds.reserve(42);
 		while (0xCAFE) {
-			if (not buffer.empty()) {
-				if (not buffer.front()->nb_users()) {
+			if (not buffer.empty())
+			{
+				if (not buffer.front()->nb_targets())
+				{
 					delete buffer.front();
 					buffer.pop();
 				}
@@ -141,17 +143,18 @@ namespace c_irc
 			if (rc == -1) {
 				if (errno == EINTR)
 					break ;
-				close(fd);
+				close(server_fd);
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
 			}
 			if (pollfds[0].revents == POLLIN) // new connection to server waiting
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			delete_empty_channels();
-			if (not buffer.empty() and buffer.front()->get_status()) {
+			if (not buffer.empty() and buffer.front()->get_status())
+			{
 				delete buffer.front();
 				buffer.pop();
+				delete_empty_channels();
 			}
 		}
 	}
@@ -161,9 +164,9 @@ namespace c_irc
 		struct sockaddr_in user_addr;
 		socklen_t user_addr_len = sizeof(user_addr);
 		int user_fd;
-		user_fd = accept(fd, (struct sockaddr *)&user_addr, &user_addr_len);
+		user_fd = accept(server_fd, (struct sockaddr *)&user_addr, &user_addr_len);
 		if (user_fd == -1) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("accept() failed to open");
 		}
 		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) \
@@ -189,6 +192,11 @@ namespace c_irc
 				break ;
 			if (pollfds[i].revents)
 				n--;
+			if (pollfds[i].revents & POLLOUT)
+			{
+				send_message(buffer.front(), pollfds[i]);
+				check_user_quit();
+			}
 			if (pollfds[i].revents & POLLIN) {
 				std::fill(buf, buf + sizeof(buf), 0);
 				int rc = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
@@ -198,11 +206,7 @@ namespace c_irc
 				}
 				parse_message(buf, pollfds[i].fd);
 			}
-			if (pollfds[i].revents & POLLOUT)
-			{
-				send_message(buffer.front(), pollfds[i]);
-				check_user_quit();
-			}
+
 		}
 	}
 
@@ -214,7 +218,7 @@ namespace c_irc
 		msg->set_status();
 	}
 
-	void	Server::create_channel(std::string name, int user)
+	void	Server::create_channel(std::string name, int user, std::string key)
 	{
 		if (channels.find(name) != channels.end()) {
 			channels[name]->add_user(user);
@@ -223,8 +227,11 @@ namespace c_irc
 		}
 		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
-		LOG("Channel " + name + " created");
-	}
+		if (key.empty())
+			{LOG("Channel " + name + " created");}
+		else 
+			LOG("Channel " + name + " created with key"); 
+	}	
 
 	void	Server::delete_channel(std::string name)
 	{
@@ -290,14 +297,7 @@ namespace c_irc
 		commands_t::iterator it = commands.find(cmd.get_cmd());
 
 		if (it == commands.end())
-		{
-			if (cmd.get_cmd() == "JOIN") {
-				create_channel(cmd.get_arg(0), fd);
-				return ;
-			}
-			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
-		}
 		LOG_USER(fd, "Executing command : " + cmd.get_cmd());
 		cmd_ptr ptr = (*it).second;
 		(this->*ptr)(fd, cmd.get_args());
@@ -309,6 +309,13 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
+		commands["JOIN"] = &Server::cmd_join; 
+		commands["INVITE"] = &Server::cmd_invite; 
+		commands["KICK"] = &Server::cmd_kick; 
+		commands["LIST"] = &Server::cmd_list; 
+		commands["NAMES"] = &Server::cmd_names; 
+		commands["PART"] = &Server::cmd_part; 
+		commands["TOPIC"] = &Server::cmd_topic; 
 
 		commands["MODE"] = &Server::cmd_mode;
 		commands["PING"] = &Server::cmd_ping;
@@ -327,28 +334,25 @@ namespace c_irc
 
 	void Server::queue_message(std::string payload, int fd)
 	{
-		c_irc::Message *msg = new c_irc::Message(users, fd, payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, fd);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, 0);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan, int fd)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_sender(sender);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, fd);
 		buffer.push(msg);
 	}
 

@@ -19,9 +19,16 @@ SRCS_LIST = \
 	commands/user/pass.cpp \
 	commands/user/user.cpp \
 	commands/user/cap.cpp \
+	commands/utils_cmd.cpp \
+	commands/chan/invite.cpp \
+	commands/chan/join.cpp \
+	commands/chan/kick.cpp \
+	commands/chan/list.cpp \
+	commands/chan/names.cpp \
+	commands/chan/part.cpp \
+	commands/chan/topic.cpp \
 	commands/user/oper.cpp \
 	commands/user/quit.cpp \
-	commands/utils_cmd.cpp \
 	commands/miscs/kill.cpp \
 	commands/miscs/mode.cpp \
 	commands/miscs/ping.cpp \

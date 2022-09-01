@@ -28,6 +28,7 @@ namespace c_irc
 	std::string Channel::get_key() const { return (key); }
 	uint16_t Channel::get_mode() const { return (mode); }
 	uint16_t Channel::get_limit() const { return (limit); }
+	size_t	Channel::get_number_of_users() const { return chan_users.size();}
 
 	void Channel::set_topic(std::string new_topic) { topic = new_topic; }
 	void Channel::set_key(std::string new_key) { key = new_key; }
@@ -61,7 +62,14 @@ namespace c_irc
 		chan_users.erase(id);
 	}
 
-	void Channel::ban_user(std::string new_user)
+	void Channel::remove_user(std::string new_user)
+	{
+		for (chan_users_it_t it = begin(); it != end(); ++it)
+			if (serv_users.at(it->first)->get_nick() == new_user)
+				chan_users.erase(serv_users.at(it->first)->get_fd()); 
+	}
+
+	/*void Channel::ban_user(std::string new_user)
 	{
 		ban_list.push_back(new_user);
 	}
@@ -75,7 +83,7 @@ namespace c_irc
 				return ;
 			}
 		}
-	}
+	}*/
 
 	void Channel::invite_user(std::string new_user)
 	{
@@ -93,7 +101,7 @@ namespace c_irc
 		}
 	}
 
-	bool Channel::is_name_valid(std::string new_name)
+	/*bool Channel::is_name_valid(std::string new_name)
 	{
 		std::string start = "#&+!";
 
@@ -106,7 +114,7 @@ namespace c_irc
 		if (new_name.find("^G") != std::string::npos)
 			return (false);
 		return (true);
-	}
+	}*/
 
 	bool Channel::is_user_banned(std::string new_user)
 	{
@@ -124,6 +132,11 @@ namespace c_irc
 		return (false);
 	}
 
+	bool Channel::is_user_in_channel(int fd)
+	{
+		return (chan_users.find(fd) != chan_users.end());
+	}
+
 	bool Channel::is_user_in_channel(std::string new_user)
 	{
 		for (chan_users_it_t it = begin(); it != end(); ++it)
@@ -131,6 +144,8 @@ namespace c_irc
 				return (true);
 		return (false);
 	}
+
+	bool  Channel::is_mode(uint16_t fl) { return (mode & fl); }
 
 	int Channel::fd_from_nick(std::string new_user)
 	{
@@ -141,6 +156,7 @@ namespace c_irc
 	}
 
 	bool Channel::is_empty() const { return (chan_users.empty()); }
+	bool Channel::is_full() const { return (chan_users.size() == limit); }
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }
