@@ -150,11 +150,11 @@ namespace c_irc
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			delete_empty_channels();
 			if (not buffer.empty() and buffer.front()->get_status())
 			{
 				delete buffer.front();
 				buffer.pop();
+				delete_empty_channels();
 			}
 		}
 	}
