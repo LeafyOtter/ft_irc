@@ -85,7 +85,6 @@ namespace c_irc
 		}
 
 		chan->set_topic(args[1]);
-		queue_message(RPL_TOPIC_CHANGE(nick, user.get_user(), chan->get_name(), args[1]), \
-			chan->begin(), chan->end());
+		queue_message(RPL_TOPIC_CHANGE(nick, user.get_user(), chan->get_name(), args[1]), chan);
 	}
 }

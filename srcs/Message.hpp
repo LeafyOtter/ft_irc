@@ -12,27 +12,25 @@ namespace c_irc
 		private:	
 
 		typedef enum target_type_e {
-			TARGET_UNREGISTERED,
-			TARGET_RANGE
+			TARGET_USER,
+			TARGET_CHANNEL
 		} target_type_t;
 
 		bool				to_pop;
-		std::string			message;
+		int					utarget;
+		c_irc::Channel		*ctarget;
 		target_type_t		target_type;
-		int					target;
-		chan_users_it_t		first_target;
-		chan_users_it_t		last_target;
-		chan_users_it_t		sender;
-		bool				has_sender;
-
+		int					sender;
+		std::string			message;
+		
 		serv_users_t		&users;
 
 		Message();
 
 		public:
 
-		Message(serv_users_t &u, chan_users_it_t first, chan_users_it_t last);
-		Message(serv_users_t &u, int fd, std::string msg);
+		Message(serv_users_t &u, std::string msg, int target_fd);
+		Message(serv_users_t &u, std::string msg, c_irc::Channel *c, int sender_fd);
 		Message(const Message &other);
 		~Message();
 
@@ -42,12 +40,12 @@ namespace c_irc
 		bool			get_status();
 
 		void			set_message(std::string new_message);
-		void			set_sender(chan_users_it_t new_sender);
+		void			set_sender(int new_sender);
 		void			set_status();
 
 		void			append_message(std::string new_message);
 
-		int				nb_users() const;
+		int				nb_targets() const;
 
 		void			prepare();
 	};

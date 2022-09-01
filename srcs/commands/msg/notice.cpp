@@ -53,7 +53,7 @@ namespace c_irc
 			}
 
 			std::string msg = RPL_NOTICE(nick, user->get_user(), name, args[1]);
-			queue_message(msg, chan->begin(), chan->end(), chan->get_user(fd));
+			queue_message(msg, chan, fd);
 			return ;
 		}
 		else

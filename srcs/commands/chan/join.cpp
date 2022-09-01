@@ -84,103 +84,6 @@ namespace c_irc
 		return (true);
 	}
 
-	// bool Server::channel_autorization(std::string element, int fd, std::string key)
-	// {
-	// 		int pos; 
-	// 		if (not is_name_valid(element))
-	// 		{
-	// 			queue_message(ERR_BADCHANMASK(element),fd); // nom invalide != channel inexistant
-	// 			return 0; 
-	// 		}
-	// 		//if (not is_name_key_valid)
-	// 		//{
-	// 		//	return 0; // a verif car erreur non mentionnee : ERR_INVALIDKEY (dans channel ?)
-	// 		//}
-			
-	// 		//if (verifier si l'user a trop de chan)
-	// 		//{
-	// 		//	queue_message(ERR_TOOMANYCHANNELS(element), fd);  
-	// 		//	 return 0;
-	// 		//}
-	// 		if (channels.find(element) != channels.end()) 
-	// 		{
-	// 			if (channels[element]->get_key() != key)
-	// 			{
-	// 				queue_message(ERR_BADCHANNELKEY(element),fd); 
-	// 				return 0;
-	// 			}
-	// 			if(channels[element]->is_mode(INVITE_ONLY))
-	// 			{
-	// 				queue_message(ERR_INVITEONLYCHAN (element),fd); 
-	// 				return 0;
-	// 			}
-	// 			//if si channel plein / limite
-	// 			//{ 
-	// 			//	queue_message(ERR_CHANNELISFULL(element),fd); 
-	// 			//	return 0 
-	// 			//} 
-			
-	// 			//envoyer le message RPL_TOPIC quand on rejoint un channel (user simple et operateur different ?)
-	// 			channels[element]->add_user(fd);
-	// 			return (0); 
-	// 		}
-    // 		return 1; 
-	// }
-
-	// void Server::parse_cmd_join(arguments_t &args, int fd, std::string chan_name)
-	// {	
-	// 	std::vector <std::string> element; 
-	// 	std::vector <std::string> key_tab; 
-	// 	std::string key = ""; 
-		
-	// 	split(args[0], ',', element); 
-	// 	if (args.size() >= 2)
-	// 		split(args[1], ',', key_tab);
-
-	// 	for(size_t i = 0; i < element.size(); i++)
-	// 	{
-	// 		std::cout << element[i] << std::endl; 
-	// 		chan_name = element[i]; 
-	// 		if (not key.empty())
-	// 		{
-	// 			if (i >= key.size())
-	// 				key = key_tab[i]; 
-	// 		}	
-	// 		if (channel_autorization(chan_name, fd, key))   // ok channel inexistant a creer 
-	// 		{
-	// 			create_channel(chan_name, fd, key);
-	// 			// ajouter que l'user est en mode operator ?
-	// 			//envoi un message pour confir;er (voir message operateur et user simple)				
-	// 		}
-	// 	}
-	// }
-
-
-	// void Server::cmd_join(int fd, arguments_t &args)
-	// {
-	// 	std::string name = "JOIN";
-	// 	std::string chan_name; 
-	// 	std::string nick; 
-	// 	c_irc::User &user = *users[fd];
-
-	// 	if (not user.is_mode(U_MODE_REGISTERED_PASS))
-	// 		return ;
-	// 	nick = user.get_nick();
-	// 	if (args.empty())
-	// 	{
-	// 		queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
-	// 		return ;
-	// 	}
-	// 	if (args[0] == "0")
-	// 	{
-	// 		// iteration sur channels et verif si l'user y est pour le supprimer usser.move()
-	// 		return; 
-	// 	}
-	// 	//- gerer si l'utilisateur est sur trop de chan  ERR_TOOMANYCHANNELS
-	// 		//return;
-	// 	parse_cmd_join(args, fd, chan_name);  
-	// }	
-
 	// ERR_NOTREGISTERED : User is not registered
 	// ERR_NEEDMOREPARAMS : The given command requires more parameters.
 	// ERR_INVITEONLYCHAN : The given channel is invite only. (and user is not on invite list)
@@ -270,8 +173,7 @@ namespace c_irc
 				continue ;
 
 			chan->add_user(fd);
-			queue_message(RPL_JOIN(nick, user.get_user(), chan_name), \
-				chan->begin(), chan->end(), chan->get_user(fd));
+			queue_message(RPL_JOIN(nick, user.get_user(), chan_name), chan, fd);
 			msg += RPL_JOIN(nick, user.get_user(), chan_name);
 			msg += print_users_list(chan, fd, nick);
 		}

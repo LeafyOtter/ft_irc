@@ -259,8 +259,7 @@ namespace c_irc
 			cmode_string(chan->get_mode(), "")), fd);
 		// probably need to redo this
 		queue_message(RPL_CHAN_MODE(nick, user.get_user(), name, \
-			cmode_string(chan->get_mode(), "")), chan->begin(), chan->end(), \
-			chan->get_user(fd));
+			cmode_string(chan->get_mode(), "")), chan, fd);
 	}
 
 
