@@ -125,12 +125,14 @@ namespace c_irc
 
 		// Change signal behavior
 		signal(SIGINT, &signal_handler);
-		// signal(SIGTERM, &signal_handler);
-		// signal(SIGQUIT, &signal_handler);
+		signal(SIGTERM, &signal_handler);
+		signal(SIGQUIT, &signal_handler);
 		pollfds.reserve(42);
 		while (0xCAFE) {
-			if (not buffer.empty()) {
-				if (not buffer.front()->nb_users()) {
+			if (not buffer.empty())
+			{
+				if (not buffer.front()->nb_targets())
+				{
 					delete buffer.front();
 					buffer.pop();
 				}
@@ -148,10 +150,11 @@ namespace c_irc
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			delete_empty_channels();
-			if (not buffer.empty() and buffer.front()->get_status()) {
+			if (not buffer.empty() and buffer.front()->get_status())
+			{
 				delete buffer.front();
 				buffer.pop();
+				delete_empty_channels();
 			}
 		}
 	}
@@ -189,6 +192,11 @@ namespace c_irc
 				break ;
 			if (pollfds[i].revents)
 				n--;
+			if (pollfds[i].revents & POLLOUT)
+			{
+				send_message(buffer.front(), pollfds[i]);
+				check_user_quit();
+			}
 			if (pollfds[i].revents & POLLIN) {
 				std::fill(buf, buf + sizeof(buf), 0);
 				int rc = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
@@ -198,11 +206,7 @@ namespace c_irc
 				}
 				parse_message(buf, pollfds[i].fd);
 			}
-			if (pollfds[i].revents & POLLOUT)
-			{
-				send_message(buffer.front(), pollfds[i]);
-				check_user_quit();
-			}
+
 		}
 	}
 
@@ -330,28 +334,25 @@ namespace c_irc
 
 	void Server::queue_message(std::string payload, int fd)
 	{
-		c_irc::Message *msg = new c_irc::Message(users, fd, payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, fd);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, 0);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan, int fd)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_sender(sender);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, fd);
 		buffer.push(msg);
 	}
 

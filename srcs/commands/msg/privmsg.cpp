@@ -41,7 +41,7 @@ namespace c_irc
 			return ;
 		}
 
-		if (args[1].empty())
+		if (args.size() < 2)
 		{
 			queue_message(ERR_NOTEXTTOSEND(nick), fd);
 			return ;
@@ -67,7 +67,7 @@ namespace c_irc
 			}
 
 			std::string msg = RPL_PRIVMSG(nick, user->get_user(), name, args[1]);
-			queue_message(msg, chan->begin(), chan->end(), chan->get_user(fd));
+			queue_message(msg, chan, fd);
 			return ;
 		}
 		else
