@@ -62,6 +62,13 @@ namespace c_irc
 		chan_users.erase(id);
 	}
 
+	void Channel::remove_user(std::string new_user)
+	{
+		for (chan_users_it_t it = begin(); it != end(); ++it)
+			if (serv_users.at(it->first)->get_nick() == new_user)
+				chan_users.erase(serv_users.at(it->first)->get_fd()); 
+	}
+
 	/*void Channel::ban_user(std::string new_user)
 	{
 		ban_list.push_back(new_user);

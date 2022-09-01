@@ -52,6 +52,8 @@ namespace c_irc
 		std::string comment = "";
 		std::vector <std::string> users_to_kick;
 		std::vector <std::string> from_chan_kick;
+		std::string chan_name; 
+		
 
 		if (user.is_mode(U_MODE_RESTRICTED))
 		{
@@ -66,61 +68,62 @@ namespace c_irc
 		if (args.size() == 1)	// pas d'erreur si il n'y a aucun user entré
 			return; 
 		if (args.size() == 3)
-			comment = args[3]; 
+				comment = args[2];
 		split(args[0], ',', from_chan_kick); 
 		split(args[1], ',', users_to_kick);
 
-		for(size_t i = 0; i < from_chan_kick.size(); i++)	// iteration sur la liste de channel donné
+		if (from_chan_kick.size() > users_to_kick.size())
 		{
-			if (not (channels.find(from_chan_kick[i]) != channels.end()))	// si le channel n'existe pas -> erreur
+			LOG_USER(fd, "Error, too many channels");
+			return ;
+		}
+		if (from_chan_kick.size() == 1)		// si le vecteur de channel = 1, virer tous les utilisateur du vecteur d'user
+		{
+			chan_name = from_chan_kick[0]; 
+			if (not (channels.find(chan_name) != channels.end()))	// si le channel n'existe pas -> erreur
 			{
-				queue_message(ERR_NOSUCHCHANNEL(nick, from_chan_kick[i]), fd);
+				queue_message(ERR_NOSUCHCHANNEL(nick, chan_name), fd);
 				return; 
 			}
-			if (not channels[from_chan_kick[i]]->is_user_op(fd))	// si l'user n'est pas operateur sur ce channel -> return; 
+			if (not channels[chan_name]->is_user_op(fd))	// si l'user n'est pas operateur sur ce channel -> return; 
 			{
 				queue_message(ERR_CHANOPRIVSNEEDED(nick, args[1]), fd);
 				return ;
 			}  
-			if (from_chan_kick.size() == 1)		// si le vecteur de channel = 1, virer tous les utilisateur du vecteur d'user
-				for(size_t i = 0; i < users_to_kick.size(); i++)	// iteration sur les users donné en param 
-				{
-					if (not channels[from_chan_kick[i]]->is_user_in_channel(users_to_kick[i]))	// verif si ils sont bien dans le channel
-						queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], from_chan_kick[i]), fd);
-					else 
-					{
-						//channels[from_chan_kick[i]]->remove_user(users_to_kick[i]); // FAIRE UNE FOCNTION REMOVE AVEC LE NICK ET NON LE FD dans channel
-						queue_message(RPL_PART(nick, users_to_kick[i], from_chan_kick[i], comment), fd);	 // message de sortie
-					}
-				}
-			else if (from_chan_kick.size() == users_to_kick.size()) // si il y a autant de chanel que d'user
+			for(size_t i = 0; i < users_to_kick.size(); i++)	// iteration sur les users donné en param 
 			{
-				for(size_t i = 0; i < from_chan_kick.size(); i++) 
+				if (not channels[chan_name]->is_user_in_channel(users_to_kick[i]))	// verif si ils sont bien dans le channel
+					queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], chan_name), fd);
+				else 
 				{
-					if (not (channels.find(from_chan_kick[i]) != channels.end()))
-					{
-						queue_message(ERR_NOSUCHCHANNEL(nick, from_chan_kick[i]), fd);
-						return; 
-					} 
-					if (not channels[from_chan_kick[i]]->is_user_op(fd))
-					{
-						queue_message(ERR_CHANOPRIVSNEEDED(nick, args[1]), fd);
-						return ;
-					}  
-					if (not channels[from_chan_kick[i]]->is_user_in_channel(users_to_kick[i]))
-						queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], from_chan_kick[i]), fd);
-					else
-					{
-						//channels[from_chan_kick[i]]->remove_user(users_to_kick[i]);
-						queue_message(RPL_PART(nick, users_to_kick[i], from_chan_kick[i], comment), fd);
-					}
+					channels[chan_name]->remove_user(users_to_kick[i]); 
+					queue_message(RPL_PART(nick, users_to_kick[i], chan_name, comment), fd);	 // message de sortie
 				}
-			}
-			else // plus de channel que d'users
-			{
-				// quel erreur renvoyer si il ya plus de channel que d'user ?
-				return; 
 			}
 		}
+		else if (from_chan_kick.size() == users_to_kick.size()) // si il y a autant de chanel que d'user
+		{
+			for(size_t i = 0; i < from_chan_kick.size(); i++) 
+			{
+				if (not (channels.find(from_chan_kick[i]) != channels.end()))
+				{
+					queue_message(ERR_NOSUCHCHANNEL(nick, from_chan_kick[i]), fd);
+					return; 
+				} 
+				if (not channels[from_chan_kick[i]]->is_user_op(fd))
+				{
+					queue_message(ERR_CHANOPRIVSNEEDED(nick, args[1]), fd);
+					return ;
+				}  
+				if (not channels[from_chan_kick[i]]->is_user_in_channel(users_to_kick[i]))
+					queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], from_chan_kick[i]), fd);
+				else
+				{
+					channels[from_chan_kick[i]]->remove_user(users_to_kick[i]);
+					queue_message(RPL_PART(nick, users_to_kick[i], from_chan_kick[i], comment), fd);
+				}
+			}
+		}
+
 	}
 }
