@@ -35,14 +35,11 @@ Numeric Replies:
  - Les serveurs PEUVENT limiter le nombre d'utilisateurs cibles par KICKcommande 
  via le TARGMAX paramètre de RPL_ISUPPORT , et supprimer silencieusement des cibles si le nombre de cibles dépasse la limite.
 
- ok verifié : 1 chan et plusieurs user, ou un chan par user, mais pas plusieurs urser sur un seul chan : 
- there MUST be either one channel parameter and multiple user parameter, or as many channel parameters as there are user parameters. 
 
 */
 
 namespace c_irc
 {
-
 	void Server::cmd_kick(int fd, arguments_t &args)
 	{ 
 		c_irc::User &user = *users[fd];
@@ -54,7 +51,6 @@ namespace c_irc
 		std::vector <std::string> from_chan_kick;
 		std::string chan_name; 
 		
-
 		if (user.is_mode(U_MODE_RESTRICTED))
 		{
 			queue_message(ERR_NOTREGISTERED(nick), fd);
@@ -65,7 +61,7 @@ namespace c_irc
 			queue_message(ERR_NEEDMOREPARAMS(nick, name), fd);
 			return ;
 		}
-		if (args.size() == 1)	// pas d'erreur si il n'y a aucun user entré
+		if (args.size() == 1)
 			return; 
 		if (args.size() == 3)
 				comment = args[2];
@@ -77,31 +73,31 @@ namespace c_irc
 			LOG_USER(fd, "Error, too many channels");
 			return ;
 		}
-		if (from_chan_kick.size() == 1)		// si le vecteur de channel = 1, virer tous les utilisateur du vecteur d'user
+		if (from_chan_kick.size() == 1)
 		{
 			chan_name = from_chan_kick[0]; 
-			if (not (channels.find(chan_name) != channels.end()))	// si le channel n'existe pas -> erreur
+			if (not (channels.find(chan_name) != channels.end()))
 			{
 				queue_message(ERR_NOSUCHCHANNEL(nick, chan_name), fd);
 				return; 
 			}
-			if (not channels[chan_name]->is_user_op(fd))	// si l'user n'est pas operateur sur ce channel -> return; 
+			if (not channels[chan_name]->is_user_op(fd))
 			{
-				queue_message(ERR_CHANOPRIVSNEEDED(nick, args[1]), fd);
+				queue_message(ERR_CHANOPRIVSNEEDED(nick, chan_name), fd);
 				return ;
 			}  
-			for(size_t i = 0; i < users_to_kick.size(); i++)	// iteration sur les users donné en param 
+			for(size_t i = 0; i < users_to_kick.size(); i++)
 			{
-				if (not channels[chan_name]->is_user_in_channel(users_to_kick[i]))	// verif si ils sont bien dans le channel
+				if (not channels[chan_name]->is_user_in_channel(users_to_kick[i]))
 					queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], chan_name), fd);
 				else 
 				{
 					channels[chan_name]->remove_user(users_to_kick[i]); 
-					queue_message(RPL_PART(nick, users_to_kick[i], chan_name, comment), fd);	 // message de sortie
+					queue_message(RPL_PART(nick, users_to_kick[i], chan_name, comment), fd);
 				}
 			}
 		}
-		else if (from_chan_kick.size() == users_to_kick.size()) // si il y a autant de chanel que d'user
+		else if (from_chan_kick.size() == users_to_kick.size())
 		{
 			for(size_t i = 0; i < from_chan_kick.size(); i++) 
 			{
@@ -112,7 +108,7 @@ namespace c_irc
 				} 
 				if (not channels[from_chan_kick[i]]->is_user_op(fd))
 				{
-					queue_message(ERR_CHANOPRIVSNEEDED(nick, args[1]), fd);
+					queue_message(ERR_CHANOPRIVSNEEDED(nick, from_chan_kick[i]), fd);
 					return ;
 				}  
 				if (not channels[from_chan_kick[i]]->is_user_in_channel(users_to_kick[i]))
@@ -124,6 +120,6 @@ namespace c_irc
 				}
 			}
 		}
-
 	}
 }
+
