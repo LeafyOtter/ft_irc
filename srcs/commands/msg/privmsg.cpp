@@ -41,7 +41,7 @@ namespace c_irc
 			return ;
 		}
 
-		if (args[1].empty())
+		if (args.size() < 2)
 		{
 			queue_message(ERR_NOTEXTTOSEND(nick), fd);
 			return ;
