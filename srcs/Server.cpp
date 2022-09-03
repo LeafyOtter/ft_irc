@@ -147,6 +147,7 @@ namespace c_irc
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
 			}
 			if (rc == 0) {
+				LOG("poll() timeout");
 				check_user_quit();
 				continue ;
 			}
@@ -216,8 +217,9 @@ namespace c_irc
 
 	void	Server::send_message(c_irc::Message *msg, pollfd &pfd)
 	{
+		std::cout << "Sending message to " << pfd.fd << " : " << msg->get_message();
 		std::string str = msg->get_message();
-		send(pfd.fd, str.c_str(), str.length(), 0);
+		send(pfd.fd, str.c_str(), str.length(), MSG_NOSIGNAL);
 		pfd.events &= ~POLLOUT;
 		msg->set_status();
 	}
@@ -275,6 +277,9 @@ namespace c_irc
 	{
 		std::string delimiter = "\r\n";
 		size_t pos = 0;
+
+		if (msg.empty())
+			return ;
 
 		users[fd]->append_buffer(msg);
 
@@ -372,8 +377,12 @@ namespace c_irc
 
 	void Server::check_user_quit()
 	{
-		for (serv_users_it_t it = users.begin(); it != users.end(); it++)
+		serv_users_it_t next;
+
+		for (serv_users_it_t it = users.begin(); it != users.end(); it = next)
 		{
+			next = it;
+			next++;
 			if (it->second->is_delete())
 				delete_user(it->first);
 		}

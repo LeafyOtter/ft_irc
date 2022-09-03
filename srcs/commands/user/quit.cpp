@@ -14,11 +14,15 @@ namespace c_irc
 		users[fd]->set_delete();
 		// queue_message(RPL_ERROR, fd);
 
-		for (channels_it_t it = channels.begin(); it != channels.end(); ++it)
+		channels_it_t next;
+
+		for (channels_it_t it = channels.begin(); it != channels.end(); it = next)
 		{
+			next = it;
+			next++;
 			if (it->second->get_number_of_users() == 1)
 			{
-				delete_channel(it->first);
+				delete_channel(it->first); //
 				continue ;
 			}
 			if (it->second->is_user_in_channel(fd))
