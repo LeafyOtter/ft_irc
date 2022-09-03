@@ -60,7 +60,7 @@ namespace c_irc
 			}
 
 			chan = it->second;
-			if (chan->is_mode(C_MODE_NO_EXTERNAL))
+			if (chan->is_mode(C_MODE_NO_EXTERNAL) and not chan->is_user_in_channel(fd))
 			{
 				queue_message(ERR_CANNOTSENDTOCHAN(nick, name), fd);
 				return ;
