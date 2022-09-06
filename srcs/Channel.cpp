@@ -71,8 +71,8 @@ namespace c_irc
 			next = it;
 			next++;
 
-			if (serv_users[next->first]->get_nick() == new_user)
-				chan_users.erase(serv_users[next->first]->get_fd());
+			if (serv_users[it->first]->get_nick() == new_user)
+				chan_users.erase(serv_users[it->first]->get_fd());
 		}
 	}
 
@@ -90,29 +90,6 @@ namespace c_irc
 				return ;
 			}
 		}
-	}
-
-	/*bool Channel::is_name_valid(std::string new_name)
-	{
-		std::string start = "#&+!";
-
-		if (new_name.size() > 50)
-			return (false);
-		if (start.find(new_name[0]) == std::string::npos)
-			return (false);
-		if (new_name.find_first_of(" \t,:;") != std::string::npos)
-			return (false);
-		if (new_name.find("^G") != std::string::npos)
-			return (false);
-		return (true);
-	}*/
-
-	bool Channel::is_user_banned(std::string new_user)
-	{
-		for (list_it_t it = ban_list.begin(); it != ban_list.end(); ++it)
-			if (*it == new_user)
-				return (true);
-		return (false);
 	}
 
 	bool Channel::is_user_invited(std::string new_user)
