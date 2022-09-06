@@ -65,8 +65,13 @@ namespace c_irc
 	{
 		if (target_type == TARGET_USER)
 			return (1);
-		else if (target_type == TARGET_CHANNEL)
+		
+		bool is_in = ctarget->is_user_in_channel(sender);
+
+		if (target_type == TARGET_CHANNEL and is_in)
 			return (ctarget->get_number_of_users() - (sender != 0 ? 1 : 0));
+		else
+			return (ctarget->get_number_of_users());
 		return (0);
 	}
 
