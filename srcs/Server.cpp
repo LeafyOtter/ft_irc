@@ -148,11 +148,10 @@ namespace c_irc
 			if (rc)
 				check_all_clients(rc);
 
-			while (not buffer.front()->nb_targets()) {
+			while (not buffer.empty() and not buffer.front()->nb_targets())
+			{
 				delete buffer.front();
 				buffer.pop();
-				if (buffer.empty())
-					break ;
 			}
 
 			if (not buffer.empty() and buffer.front()->get_status())
@@ -217,7 +216,7 @@ namespace c_irc
 
 	void	Server::send_message(c_irc::Message *msg, pollfd &pfd)
 	{
-		std::cout << "Sending message to " << pfd.fd << " : ";
+		std::cout << "Sending message to " << pfd.fd << " :\n";
 		std::cout << COLOR_CYAN << msg->get_message() << COLOR_RESET;
 		std::string str = msg->get_message();
 		send(pfd.fd, str.c_str(), str.length(), MSG_NOSIGNAL);
