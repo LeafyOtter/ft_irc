@@ -132,7 +132,11 @@ namespace c_irc
 			}
 			return ;
 		}
-
+		if (not is_name_valid(args[0]))
+		{
+			queue_message(ERR_BADCHANMASK(nick, args[0]), fd);
+			return ;
+		}
 		while (pos != std::string::npos)
 		{
 			key = "";

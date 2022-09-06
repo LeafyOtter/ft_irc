@@ -57,7 +57,7 @@
 #define ERR_BADCHANNELKEY(nick, chan) \
 	":c-irc.net 475 " + nick + " " + chan + " :Cannot join channel\r\n" // +k
 #define ERR_BADCHANMASK(nick, chan) \
-	":c-irc.net 476 " + nick + " " + chan + " :Cannot join channel\r\n" // +k
+	":c-irc.net 476 " + nick + " " + chan + " :Bad Channel Mask\r\n" // +k
 
 #define ERR_NOPRIVILEGES(nick) \
 	":c-irc.net 481 " + nick + " :Permission Denied- You're not an IRC operator\r\n"
