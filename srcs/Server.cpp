@@ -390,8 +390,13 @@ namespace c_irc
 
 	void Server::delete_empty_channels()
 	{
-		for (channels_it_t it = channels.begin(); it != channels.end(); it++)
+		channels_it_t next;
+
+		for (channels_it_t it = channels.begin(); it != channels.end(); it = next)
 		{
+			next = it;
+			next++;
+
 			if ((*it).second->is_empty())
 				delete_channel((*it).first);
 		}
