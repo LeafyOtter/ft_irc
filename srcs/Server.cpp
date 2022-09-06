@@ -130,15 +130,7 @@ namespace c_irc
 		pollfds.reserve(42);
 		while (0xCAFE) {
 			if (not buffer.empty())
-			{
-				if (not buffer.front()->nb_targets())
-				{
-					delete buffer.front();
-					buffer.pop();
-				}
-				else
-					buffer.front()->prepare();
-			}
+				buffer.front()->prepare();
 			rc = poll(&pollfds[0], pollfds.size(), 2500);
 			if (rc == -1) {
 				if (errno == EINTR)
@@ -155,7 +147,8 @@ namespace c_irc
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			if (not buffer.empty() and buffer.front()->get_status())
+			if (not buffer.empty() and 
+				(buffer.front()->get_status() or not buffer.front()->nb_targets()))
 			{
 				delete buffer.front();
 				buffer.pop();
@@ -217,7 +210,8 @@ namespace c_irc
 
 	void	Server::send_message(c_irc::Message *msg, pollfd &pfd)
 	{
-		std::cout << "Sending message to " << pfd.fd << " : " << msg->get_message();
+		std::cout << "Sending message to " << pfd.fd << " : ";
+		std::cout << COLOR_CYAN << msg->get_message() << COLOR_RESET;
 		std::string str = msg->get_message();
 		send(pfd.fd, str.c_str(), str.length(), MSG_NOSIGNAL);
 		pfd.events &= ~POLLOUT;
