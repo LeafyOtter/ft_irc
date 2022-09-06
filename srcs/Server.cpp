@@ -147,8 +147,15 @@ namespace c_irc
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			if (not buffer.empty() and 
-				(buffer.front()->get_status() or not buffer.front()->nb_targets()))
+
+			while (not buffer.front()->nb_targets()) {
+				delete buffer.front();
+				buffer.pop();
+				if (buffer.empty())
+					break ;
+			}
+
+			if (not buffer.empty() and buffer.front()->get_status())
 			{
 				delete buffer.front();
 				buffer.pop();
