@@ -64,26 +64,17 @@ namespace c_irc
 
 	void Channel::remove_user(std::string new_user)
 	{
-		for (chan_users_it_t it = begin(); it != end(); ++it)
-			if (serv_users.at(it->first)->get_nick() == new_user)
-				chan_users.erase(serv_users.at(it->first)->get_fd()); 
-	}
+		chan_users_it_t next;
 
-	/*void Channel::ban_user(std::string new_user)
-	{
-		ban_list.push_back(new_user);
-	}
-
-	void Channel::unban_user(std::string new_user)
-	{
-		for (list_it_t it = ban_list.begin(); it != ban_list.end(); ++it)
+		for (chan_users_it_t it = begin(); it != end(); it = next)
 		{
-			if (*it == new_user) {
-				ban_list.erase(it);
-				return ;
-			}
+			next = it;
+			next++;
+
+			if (serv_users[next->first]->get_nick() == new_user)
+				chan_users.erase(serv_users[next->first]->get_fd());
 		}
-	}*/
+	}
 
 	void Channel::invite_user(std::string new_user)
 	{
