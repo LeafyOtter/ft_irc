@@ -147,7 +147,7 @@ namespace c_irc
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
 			}
 			if (rc == 0) {
-				LOG("poll() timeout");
+				// LOG("poll() timeout");
 				check_user_quit();
 				continue ;
 			}
