@@ -94,9 +94,10 @@ namespace c_irc
 					queue_message(ERR_USERNOTINCHANNEL(nick, users_to_kick[i], chan_name), fd);
 				else 
 				{
-					channels[chan_name]->remove_user(users_to_kick[i]); 
-					queue_message(RPL_KICK(nick, users[fd]->get_user(), chan_name, \
-						users_to_kick[i], comment), channels[chan_name]);
+					channels[chan_name]->remove_user(users_to_kick[i]);
+					std::string msg = RPL_KICK(nick, users[fd]->get_user(), chan_name, users_to_kick[i], comment);
+					queue_message(msg, channels[chan_name]);
+					queue_message(msg, is_user(users_to_kick[i]));
 				}
 			}
 		}
@@ -119,9 +120,9 @@ namespace c_irc
 				else
 				{
 					channels[from_chan_kick[i]]->remove_user(users_to_kick[i]);
-					queue_message(RPL_KICK(nick, users[fd]->get_user(), \
-						from_chan_kick[i], users_to_kick[i], comment), channels[from_chan_kick[i]]);
-					// queue_message(RPL_KICK(users_to_kick[i], users[fd_target]->get_user(), from_chan_kick[i], comment), fd);
+					std::string msg = RPL_KICK(nick, users[fd]->get_user(), from_chan_kick[i], users_to_kick[i], comment);
+					queue_message(msg, channels[from_chan_kick[i]]);
+					queue_message(msg, is_user(users_to_kick[i]));
 				}
 			}
 		}
