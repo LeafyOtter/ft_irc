@@ -35,7 +35,7 @@
 	":c-irc.net 341 " + nick + " " + target + " " + chan + "\r\n"
 
 #define RPL_VERSION(nick, server, version) \
-	":c-irc.net 351 " + nick + " " + version + ".42 :c-irc.net\r\n"
+	":c-irc.net 351 " + nick + " " + version + " :c-irc.net\r\n"
 
 #define RPL_NAMREPLY(nick, chan, users) \
 	":c-irc.net 353 " + nick + " " + chan + " :" + users + "\r\n"
