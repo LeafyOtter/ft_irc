@@ -2,7 +2,7 @@ NAME = ircserv
 
 C++ = c++
 
-FSAN = -fsanitize=address -fsanitize=leak -fsanitize=undefined
+# FSAN = -fsanitize=address -fsanitize=leak -fsanitize=undefined
 
 FLAG = -Wall -Werror -Wextra -std=c++98 -g $(FSAN)
 INCS = -I./srcs -MMD -MP
