@@ -24,12 +24,12 @@ namespace c_irc
 			return ;
 		}
 		msg += RPL_INFO(nick, "----------------- c-irc.net -----------------");
-		msg += RPL_INFO(nick, "\t c_irc : version " + VERSION);
-		msg += RPL_INFO(nick, "\t - : author : " + AUTHOR);
-		msg += RPL_INFO(nick, "\t - : github : " + GITHUB);
-		msg += RPL_INFO(nick, "\t - : compilation time : " + compilation_time);
-		msg += RPL_INFO(nick, "\t - : start time : " + creation_time);
-		msg += RPL_INFO(nick, "\t A 42 school project");
+		msg += RPL_INFO(nick, " c_irc : version " + VERSION);
+		msg += RPL_INFO(nick, " - : author : " + AUTHOR);
+		msg += RPL_INFO(nick, " - : github : " + GITHUB);
+		msg += RPL_INFO(nick, " - : compilation time : " + compilation_time);
+		msg += RPL_INFO(nick, " - : start time : " + creation_time);
+		msg += RPL_INFO(nick, "     A 42 school project");
 		msg += RPL_INFO(nick, "---------------------------------------------");
 		msg += RPL_ENDOFINFO(nick);
 		queue_message(msg, fd);
