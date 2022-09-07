@@ -141,8 +141,6 @@ namespace c_irc
 		std::string		name;
 		mode_type_t		type = MODE_UNKNOWN;
 
-		LOG_USER(fd, "cmd_mode_chan");
-
 		nick = user.get_nick();
 		name = args[0];
 		it = channels.find(name);
@@ -163,7 +161,6 @@ namespace c_irc
 
 		if (args.size() == 0)
 		{
-			LOG_USER(fd, "cmd_mode_chan : no args");
 			queue_message(RPL_CHANNELMODEIS(nick, name, \
 				cmode_string(chan->get_mode(), chan->get_key())), fd);
 			return ;
@@ -267,8 +264,6 @@ namespace c_irc
 	{
 		c_irc::User &user = *users[fd];
 		std::string	chan_identifiers = "&#+!";
-
-		LOG_USER(fd, "cmd_mode");
 
 		if (users[fd]->is_mode(U_MODE_RESTRICTED))
 		{

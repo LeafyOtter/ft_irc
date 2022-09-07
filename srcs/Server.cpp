@@ -308,7 +308,10 @@ namespace c_irc
 		commands_t::iterator it = commands.find(cmd.get_cmd());
 
 		if (it == commands.end())
+		{
+			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
+		}
 		LOG_USER(fd, "Executing command : " + cmd.get_cmd());
 		cmd_ptr ptr = (*it).second;
 		(this->*ptr)(fd, cmd.get_args());
@@ -327,17 +330,14 @@ namespace c_irc
 		commands["NAMES"] = &Server::cmd_names; 
 		commands["PART"] = &Server::cmd_part; 
 		commands["TOPIC"] = &Server::cmd_topic; 
-
 		commands["MODE"] = &Server::cmd_mode;
 		commands["PING"] = &Server::cmd_ping;
 		commands["TIME"] = &Server::cmd_time;
 		commands["OPER"] = &Server::cmd_oper;
-
 		commands["PRIVMSG"] = &Server::cmd_privmsg;
 		commands["NOTICE"] = &Server::cmd_notice;
 		commands["QUIT"] = &Server::cmd_quit;
 		commands["KILL"] = &Server::cmd_kill;
-
 		commands["INFO"] = &Server::cmd_info;
 		commands["MOTD"] = &Server::cmd_motd;
 		commands["VERSION"] = &Server::cmd_version;
