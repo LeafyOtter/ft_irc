@@ -123,20 +123,18 @@ namespace c_irc
 
 		if (args[0] == "0")
 		{
-			// loop on all chans and remove user 
-			
-			for (it = channels.begin(); it != channels.end(); ++it)
+			for (it = channels.begin(); it != channels.end(); it++)
 			{
-				if (it->second->is_user_in_channel(fd))
-					it->second->remove_user(fd); 
+				chan = it->second;
+				if (chan->is_user_in_channel(nick))
+				{
+					chan->remove_user(fd);
+					queue_message(RPL_PART(nick, user.get_user(), it->first, "Leaving"), chan);
+				}
 			}
 			return ;
 		}
-		if (not is_name_valid(args[0]))
-		{
-			queue_message(ERR_BADCHANMASK(nick, args[0]), fd);
-			return ;
-		}
+
 		while (pos != std::string::npos)
 		{
 			key = "";
@@ -150,6 +148,12 @@ namespace c_irc
 			pos = args[0].find(',');
 			chan_name = args[0].substr(0, pos);
 			args[0] = pos != std::string::npos ? args[0].substr(pos + 1) : "";
+
+			if (not is_name_valid(chan_name))
+			{
+				queue_message(ERR_BADCHANMASK(nick, args[0]), fd);
+				continue ;
+			}
 
 			if (channels.find(chan_name) == channels.end())
 			{
