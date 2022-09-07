@@ -279,7 +279,9 @@ namespace c_irc
 		if (args.size() < 1)
 		{
 			queue_message(ERR_NEEDMOREPARAMS(user.get_nick(), "MODE"), fd);
+			return ;
 		}
+
 		if (chan_identifiers.find_first_of(args[0][0]) != std::string::npos)
 			cmd_mode_chan(fd, user, args);
 		else
