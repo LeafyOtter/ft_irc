@@ -148,18 +148,20 @@ namespace c_irc
 			if (rc)
 				check_all_clients(rc);
 
-			while (not buffer.empty() and not buffer.front()->nb_targets())
+			while (not buffer.empty() and ((not buffer.front()->nb_targets())
+					or buffer.front()->get_status()))
 			{
 				delete buffer.front();
 				buffer.pop();
 			}
 
-			if (not buffer.empty() and buffer.front()->get_status())
-			{
-				delete buffer.front();
-				buffer.pop();
-				delete_empty_channels();
-			}
+			delete_empty_channels();
+
+			// if (not buffer.empty() and buffer.front()->get_status())
+			// {
+			// 	delete buffer.front();
+			// 	buffer.pop();
+			// }
 		}
 	}
 
