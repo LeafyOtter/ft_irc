@@ -1,13 +1,15 @@
 #include "Server.hpp"
-#include "utils.tpp"
 
-#include "../replies.hpp"
 #include "../errors.hpp"
+#include "../replies.hpp"
+
+#include <iostream>
 
 namespace c_irc
 {
-	void	Server::cmd_time(int fd, arguments_t &args)
+	void Server::cmd_version(int fd, arguments_t &args)
 	{
+		std::string msg = "";
 		std::string nick = users[fd]->get_nick();
 
 		if (users[fd]->is_mode(U_MODE_RESTRICTED))
@@ -16,11 +18,12 @@ namespace c_irc
 			return ;
 		}
 
-		if (args.size() != 0 and args[0] != "c-irc.net")
+		if (args.size() == 1 and args[0] != "c-irc.net")
 		{
 			queue_message(ERR_NOSUCHSERVER(nick, args[0]), fd);
 			return ;
 		}
-		queue_message(RPL_TIME(nick, c_irc::get_time()), fd);
+		msg += RPL_VERSION(nick, "c-irc.net", VERSION);
+		queue_message(msg, fd);
 	}
 } // namespace c_irc

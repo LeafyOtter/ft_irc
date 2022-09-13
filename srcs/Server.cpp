@@ -49,7 +49,7 @@ namespace c_irc
 			delete buffer.front();
 			buffer.pop();
 		}
-		close(fd);
+		close(server_fd);
 	}
 
 	void	Server::initialize(	std::string new_name,
@@ -66,13 +66,13 @@ namespace c_irc
 		 *	Socket creation
 		 */
 
-		fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd == -1)
+		server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_fd == -1)
 			throw std::runtime_error("socket() failed to open");
 
 		LOG("Socket created");
 
-		fcntl(fd, F_SETFL, O_NONBLOCK);
+		fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
 		/*
 		 *	Socket binding
@@ -84,9 +84,9 @@ namespace c_irc
 		server_addr.sin_port = port;
 		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		
-		rc = bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+		rc = bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("bind() failed to open");
 		}
 
@@ -96,15 +96,15 @@ namespace c_irc
 		 *	Listening socket
 		 */
 
-		rc = listen(fd, 42);
+		rc = listen(server_fd, 42);
 		if (rc < 0) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("listen() failed to open");
 		}
 
 		pollfd pfd;
 
-		pfd.fd = fd;
+		pfd.fd = server_fd;
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 
@@ -116,6 +116,7 @@ namespace c_irc
 
 		init_commands();
 		creation_time = c_irc::get_time();
+		compilation_time = __TIMESTAMP__;
 	}
 
 	void	Server::start()
@@ -124,33 +125,43 @@ namespace c_irc
 
 		// Change signal behavior
 		signal(SIGINT, &signal_handler);
-		// signal(SIGTERM, &signal_handler);
-		// signal(SIGQUIT, &signal_handler);
+		signal(SIGTERM, &signal_handler);
+		signal(SIGQUIT, &signal_handler);
 		pollfds.reserve(42);
 		while (0xCAFE) {
-			if (not buffer.empty()) {
-				if (not buffer.front()->nb_users()) {
-					delete buffer.front();
-					buffer.pop();
-				}
-				else
-					buffer.front()->prepare();
-			}
-			rc = poll(&pollfds[0], pollfds.size(), -1);
+			if (not buffer.empty())
+				buffer.front()->prepare();
+			rc = poll(&pollfds[0], pollfds.size(), 2500);
 			if (rc == -1) {
 				if (errno == EINTR)
 					break ;
-				close(fd);
+				close(server_fd);
 				throw std::runtime_error("poll() error : " + std::string(strerror(errno)));
+			}
+			if (rc == 0) {
+				// LOG("poll() timeout");
+				check_user_quit();
+				continue ;
 			}
 			if (pollfds[0].revents == POLLIN) // new connection to server waiting
 				accept_connections();
 			if (rc)
 				check_all_clients(rc);
-			if (not buffer.empty() and buffer.front()->get_status()) {
+
+			while (not buffer.empty() and ((not buffer.front()->nb_targets())
+					or buffer.front()->get_status()))
+			{
 				delete buffer.front();
 				buffer.pop();
 			}
+
+			delete_empty_channels();
+
+			// if (not buffer.empty() and buffer.front()->get_status())
+			// {
+			// 	delete buffer.front();
+			// 	buffer.pop();
+			// }
 		}
 	}
 
@@ -159,9 +170,9 @@ namespace c_irc
 		struct sockaddr_in user_addr;
 		socklen_t user_addr_len = sizeof(user_addr);
 		int user_fd;
-		user_fd = accept(fd, (struct sockaddr *)&user_addr, &user_addr_len);
+		user_fd = accept(server_fd, (struct sockaddr *)&user_addr, &user_addr_len);
 		if (user_fd == -1) {
-			close(fd);
+			close(server_fd);
 			throw std::runtime_error("accept() failed to open");
 		}
 		LOG("New connection from " << inet_ntoa(user_addr.sin_addr) \
@@ -187,29 +198,35 @@ namespace c_irc
 				break ;
 			if (pollfds[i].revents)
 				n--;
+			if (pollfds[i].revents & POLLOUT)
+			{
+				send_message(buffer.front(), pollfds[i]);
+				check_user_quit();
+			}
 			if (pollfds[i].revents & POLLIN) {
 				std::fill(buf, buf + sizeof(buf), 0);
-				int rc = recv(pollfds[i].fd, buf, sizeof(buf), 0);
+				int rc = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
 				if (!rc) {
 					delete_user(i, pollfds[i].fd);
 					continue ;
 				}
 				parse_message(buf, pollfds[i].fd);
 			}
-			if (pollfds[i].revents & POLLOUT)
-				send_message(buffer.front(), pollfds[i]);
+
 		}
 	}
 
 	void	Server::send_message(c_irc::Message *msg, pollfd &pfd)
 	{
+		std::cout << "Sending message to " << pfd.fd << " :\n";
+		std::cout << COLOR_CYAN << msg->get_message() << COLOR_RESET;
 		std::string str = msg->get_message();
-		send(pfd.fd, str.c_str(), str.length(), 0);
+		send(pfd.fd, str.c_str(), str.length(), MSG_NOSIGNAL);
 		pfd.events &= ~POLLOUT;
 		msg->set_status();
 	}
 
-	void	Server::create_channel(std::string name, int user)
+	void	Server::create_channel(std::string name, int user, std::string key)
 	{
 		if (channels.find(name) != channels.end()) {
 			channels[name]->add_user(user);
@@ -218,8 +235,11 @@ namespace c_irc
 		}
 		c_irc::Channel *ptr = new c_irc::Channel(users, name, user);
 		channels.insert(std::make_pair(name, ptr));
-		LOG("Channel " + name + " created");
-	}
+		if (key.empty())
+			{LOG("Channel " + name + " created");}
+		else 
+			LOG("Channel " + name + " created with key"); 
+	}	
 
 	void	Server::delete_channel(std::string name)
 	{
@@ -233,6 +253,16 @@ namespace c_irc
 			LOG("Channel " + name + " not found");
 	}
 
+	void	Server::delete_user(int fd)
+	{
+		for (size_t i = 0; i < pollfds.size(); i++) {
+			if (pollfds[i].fd == fd) {
+				delete_user(i, fd);
+				return ;
+			}
+		}
+	}
+
 	void	Server::delete_user(int index, int fd)
 	{
 		LOG_USER(fd, "disconnected from server");
@@ -242,13 +272,16 @@ namespace c_irc
 		serv_users_it_t it = users.find(fd);
 		delete (*it).second;
 		users.erase(it);
-		pollfds.erase(pollfds.begin() + index);
+		pollfds[index] = (pollfd){0, 0, 0};
 	}
 
 	void	Server::parse_message(std::string msg, int fd)
 	{
 		std::string delimiter = "\r\n";
 		size_t pos = 0;
+
+		if (msg.empty())
+			return ;
 
 		users[fd]->append_buffer(msg);
 
@@ -265,6 +298,8 @@ namespace c_irc
 			if (not cmd.get_cmd().empty())
 				std::cout << cmd;
 			execute_command(cmd, fd);
+			if (users.find(fd) == users.end())
+				return ;
 		}
 	}
 
@@ -274,10 +309,6 @@ namespace c_irc
 
 		if (it == commands.end())
 		{
-			if (cmd.get_cmd() == "JOIN") {
-				create_channel(cmd.get_arg(0), fd);
-				return ;
-			}
 			LOG_USER(fd, "Unknown command : " + cmd.get_cmd());
 			return ;
 		}
@@ -292,39 +323,84 @@ namespace c_irc
 		commands["PASS"] = &Server::cmd_pass;
 		commands["USER"] = &Server::cmd_user;
 		commands["CAP"] = &Server::cmd_cap;
-
+		commands["JOIN"] = &Server::cmd_join; 
+		commands["INVITE"] = &Server::cmd_invite; 
+		commands["KICK"] = &Server::cmd_kick; 
+		commands["LIST"] = &Server::cmd_list; 
+		commands["NAMES"] = &Server::cmd_names; 
+		commands["PART"] = &Server::cmd_part; 
+		commands["TOPIC"] = &Server::cmd_topic; 
 		commands["MODE"] = &Server::cmd_mode;
 		commands["PING"] = &Server::cmd_ping;
 		commands["TIME"] = &Server::cmd_time;
-
+		commands["OPER"] = &Server::cmd_oper;
+		commands["PRIVMSG"] = &Server::cmd_privmsg;
+		commands["NOTICE"] = &Server::cmd_notice;
+		commands["QUIT"] = &Server::cmd_quit;
+		commands["KILL"] = &Server::cmd_kill;
+		commands["INFO"] = &Server::cmd_info;
+		commands["MOTD"] = &Server::cmd_motd;
+		commands["VERSION"] = &Server::cmd_version;
 	}
 
 	void Server::queue_message(std::string payload, int fd)
 	{
-		c_irc::Message *msg = new c_irc::Message(users, fd, payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, fd);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, 0);
 		buffer.push(msg);
 	}
 
-	void Server::queue_message(std::string payload, \
-		chan_users_it_t first, chan_users_it_t last, chan_users_it_t sender)
+	void Server::queue_message(std::string payload, c_irc::Channel *chan, int fd)
 	{
-		if (first == last)
-			return ;
-		c_irc::Message *msg = new c_irc::Message(users, first, last);
-		msg->set_sender(sender);
-		msg->set_message(payload);
+		c_irc::Message *msg;
+
+		msg = new c_irc::Message(users, payload, chan, fd);
 		buffer.push(msg);
 	}
 
 	std::string Server::get_password() const { return (password);}
+
+	int Server::is_user(std::string name)
+	{
+		for (serv_users_it_t it = users.begin(); it != users.end(); it++)
+			if ((*it).second->get_nick() == name)
+				return ((*it).first);
+		return (-1);
+	}
+
+	void Server::check_user_quit()
+	{
+		serv_users_it_t next;
+
+		for (serv_users_it_t it = users.begin(); it != users.end(); it = next)
+		{
+			next = it;
+			next++;
+			if (it->second->is_delete())
+				delete_user(it->first);
+		}
+	}
+
+	void Server::delete_empty_channels()
+	{
+		channels_it_t next;
+
+		for (channels_it_t it = channels.begin(); it != channels.end(); it = next)
+		{
+			next = it;
+			next++;
+
+			if ((*it).second->is_empty())
+				delete_channel((*it).first);
+		}
+	}
 } // namespace c_irc

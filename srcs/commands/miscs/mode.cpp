@@ -113,6 +113,8 @@ namespace c_irc
 			ret += "l";
 		if (flag & C_MODE_NO_EXTERNAL)
 			ret += "n";
+		if (flag & C_MODE_PRIVATE)
+			ret += "p";
 		if (flag & C_MODE_SECRET)
 			ret += "s";
 		if (flag & C_MODE_TOPIC_LOCK)
@@ -139,8 +141,6 @@ namespace c_irc
 		std::string		name;
 		mode_type_t		type = MODE_UNKNOWN;
 
-		LOG_USER(fd, "cmd_mode_chan");
-
 		nick = user.get_nick();
 		name = args[0];
 		it = channels.find(name);
@@ -161,7 +161,6 @@ namespace c_irc
 
 		if (args.size() == 0)
 		{
-			LOG_USER(fd, "cmd_mode_chan : no args");
 			queue_message(RPL_CHANNELMODEIS(nick, name, \
 				cmode_string(chan->get_mode(), chan->get_key())), fd);
 			return ;
@@ -169,7 +168,7 @@ namespace c_irc
 
 		if (not chan->is_user_op(fd))
 		{
-			queue_message(ERR_CHANOPRIVISNEEDED(nick, name), fd);
+			queue_message(ERR_CHANOPRIVSNEEDED(nick, name), fd);
 			return ;
 		}
 
@@ -211,12 +210,18 @@ namespace c_irc
 						c_set_unset(*chan, C_MODE_NO_EXTERNAL, type);
 						break ;
 
+					case 'p':
+						if (not chan->is_mode(C_MODE_SECRET))
+							c_set_unset(*chan, C_MODE_PRIVATE, type);
+						break ;
+
 					case 't':
 						c_set_unset(*chan, C_MODE_TOPIC_LOCK, type);
 						break ;
 
 					case 's':
-						c_set_unset(*chan, C_MODE_SECRET, type);
+						if (not chan->is_mode(C_MODE_PRIVATE))
+							c_set_unset(*chan, C_MODE_SECRET, type);
 						break ;
 
 					case 'o':
@@ -226,6 +231,7 @@ namespace c_irc
 							break ;
 						if (args.size() < current + 1)
 							return ;
+						current++;
 						new_fd = chan->fd_from_nick(args[current]);
 						if (new_fd == -1)
 						{
@@ -237,6 +243,7 @@ namespace c_irc
 							chan->set_user_mode(new_fd);
 						else
 							chan->unset_user_mode(new_fd);
+						LOG("New chanop : " << args[current]);
 						break ;
 
 				default:
@@ -249,8 +256,7 @@ namespace c_irc
 			cmode_string(chan->get_mode(), "")), fd);
 		// probably need to redo this
 		queue_message(RPL_CHAN_MODE(nick, user.get_user(), name, \
-			cmode_string(chan->get_mode(), "")), chan->begin(), chan->end(), \
-			chan->get_user(fd));
+			cmode_string(chan->get_mode(), "")), chan, fd);
 	}
 
 
@@ -259,11 +265,18 @@ namespace c_irc
 		c_irc::User &user = *users[fd];
 		std::string	chan_identifiers = "&#+!";
 
-		LOG_USER(fd, "cmd_mode");
+		if (users[fd]->is_mode(U_MODE_RESTRICTED))
+		{
+			queue_message(ERR_NOTREGISTERED(users[fd]->get_nick()), fd);
+			return ;
+		}
+
 		if (args.size() < 1)
 		{
 			queue_message(ERR_NEEDMOREPARAMS(user.get_nick(), "MODE"), fd);
+			return ;
 		}
+
 		if (chan_identifiers.find_first_of(args[0][0]) != std::string::npos)
 			cmd_mode_chan(fd, user, args);
 		else

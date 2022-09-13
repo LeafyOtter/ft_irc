@@ -28,6 +28,7 @@ namespace c_irc
 	std::string Channel::get_key() const { return (key); }
 	uint16_t Channel::get_mode() const { return (mode); }
 	uint16_t Channel::get_limit() const { return (limit); }
+	size_t	Channel::get_number_of_users() const { return chan_users.size();}
 
 	void Channel::set_topic(std::string new_topic) { topic = new_topic; }
 	void Channel::set_key(std::string new_key) { key = new_key; }
@@ -45,6 +46,8 @@ namespace c_irc
 		chan_users[fd] &= ~new_mode;
 	}
 
+	bool Channel::is_mode(uint16_t mode) const { return (this->mode & mode); }
+
 	void Channel::set_user_mode(int fd) { chan_users[fd] = true; }
 	void Channel::unset_user_mode(int fd) { chan_users[fd] = false; }
 	bool Channel::is_user_op(int fd) { return (chan_users[fd]);}
@@ -59,19 +62,17 @@ namespace c_irc
 		chan_users.erase(id);
 	}
 
-	void Channel::ban_user(std::string new_user)
+	void Channel::remove_user(std::string new_user)
 	{
-		ban_list.push_back(new_user);
-	}
+		chan_users_it_t next;
 
-	void Channel::unban_user(std::string new_user)
-	{
-		for (list_it_t it = ban_list.begin(); it != ban_list.end(); ++it)
+		for (chan_users_it_t it = begin(); it != end(); it = next)
 		{
-			if (*it == new_user) {
-				ban_list.erase(it);
-				return ;
-			}
+			next = it;
+			next++;
+
+			if (serv_users[it->first]->get_nick() == new_user)
+				chan_users.erase(serv_users[it->first]->get_fd());
 		}
 	}
 
@@ -91,35 +92,17 @@ namespace c_irc
 		}
 	}
 
-	bool Channel::is_name_valid(std::string new_name)
-	{
-		std::string start = "#&+!";
-
-		if (new_name.size() > 50)
-			return (false);
-		if (start.find(new_name[0]) == std::string::npos)
-			return (false);
-		if (new_name.find_first_of(" \t,:;") != std::string::npos)
-			return (false);
-		if (new_name.find("^G") != std::string::npos)
-			return (false);
-		return (true);
-	}
-
-	bool Channel::is_user_banned(std::string new_user)
-	{
-		for (list_it_t it = ban_list.begin(); it != ban_list.end(); ++it)
-			if (*it == new_user)
-				return (true);
-		return (false);
-	}
-
 	bool Channel::is_user_invited(std::string new_user)
 	{
 		for (list_it_t it = invite_list.begin(); it != invite_list.end(); ++it)
 			if (*it == new_user)
 				return (true);
 		return (false);
+	}
+
+	bool Channel::is_user_in_channel(int fd)
+	{
+		return (chan_users.find(fd) != chan_users.end());
 	}
 
 	bool Channel::is_user_in_channel(std::string new_user)
@@ -130,6 +113,8 @@ namespace c_irc
 		return (false);
 	}
 
+	bool  Channel::is_mode(uint16_t fl) { return (mode & fl); }
+
 	int Channel::fd_from_nick(std::string new_user)
 	{
 		for (chan_users_it_t it = begin(); it != end(); ++it)
@@ -137,6 +122,9 @@ namespace c_irc
 				return (it->first);
 		return (-1);
 	}
+
+	bool Channel::is_empty() const { return (chan_users.empty()); }
+	bool Channel::is_full() const { return (chan_users.size() == limit); }
 
 	c_irc::chan_users_it_t Channel::begin() { return (chan_users.begin()); }
 	c_irc::chan_users_it_t Channel::end() { return (chan_users.end()); }
